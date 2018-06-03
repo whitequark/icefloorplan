@@ -337,8 +337,8 @@ void FloorplanWidget::buildLogicTile(const Bitstream::Tile &tile, QGraphicsRectI
         QString lutff_lin  = lc == 7 ? "" : QString("lutff_%1/lout").arg(lc - 1);
         net_t n_lutff_lin  = lc == 7 ? -1 : tileNets[lutff_lin];
         QString lutff_lout = lutff + "/lout";
-        net_t n_lutff_lout = lc == 7 ? -1    : tileNets[lutff_lout];
-        bool  l_lutff_lout = lc == 7 ? false : netLoaded[n_lutff_lout];
+        net_t n_lutff_lout = tileNets[lutff_lout];
+        bool  l_lutff_lout = netLoaded[n_lutff_lout];
         QString lutff_out  = lutff + "/out";
         net_t n_lutff_out  = tileNets[lutff_out];
         bool  l_lutff_out  = netLoaded[n_lutff_out];
