@@ -5,13 +5,17 @@
 #include <QMap>
 #include <QIODevice>
 
+typedef uint8_t  coord_t;
+typedef uint16_t nbit_t;
+typedef int32_t  net_t;
+
 class ChipDB
 {
     struct Pin {
         QString name;
-        int tile_x;
-        int tile_y;
-        int net_num;
+        coord_t tile_x;
+        coord_t tile_y;
+        net_t net;
     };
 
     struct Package {
@@ -19,35 +23,35 @@ class ChipDB
         QMap<QString, Pin> pins;
     };
 
-    struct Connection {
-        QVector<int> bits;
-        int dst_net_num;
-        QVector<int> src_net_nums;
-    };
-
     struct TileBits {
         QString type;
-        int rows;
-        int columns;
-        QMap<QString, QVector<int>> functions;
+        nbit_t columns;
+        nbit_t rows;
+        QMap<QString, QVector<nbit_t>> functions;
+    };
+
+    struct Connection {
+        net_t dst_net_num;
+        QVector<net_t> src_net_nums;
+        QVector<nbit_t> bits;
     };
 
     struct Tile {
+        coord_t x;
+        coord_t y;
         QString type;
-        int x;
-        int y;
         QVector<Connection> buffers;
         QVector<Connection> routing;
     };
 
     struct NetEntry {
-        int tile_x;
-        int tile_y;
+        coord_t tile_x;
+        coord_t tile_y;
         QString name;
     };
 
     struct Net {
-        int num;
+        net_t num;
         QString kind;
         QVector<NetEntry> entries;
     };
@@ -56,20 +60,21 @@ public:
     ChipDB();
     bool parse(QIODevice *in, std::function<void(int,int)> progress);
 
-    Tile &tile(int x, int y);
+    Tile &tile(coord_t x, coord_t y);
 
     QString name;
-    int width;
-    int height;
-    int num_nets;
-    QVector<int> cout;
-    QVector<int> lout;
-    QVector<int> lcout;
-    QVector<int> ioin;
+    coord_t width;
+    coord_t height;
     QMap<QString, Package> packages;
     QMap<QString, TileBits> tiles_bits;
-    QMap<QPair<int, int>, Tile> tiles;
+    QMap<QPair<coord_t, coord_t>, Tile> tiles;
     QVector<Net> nets;
+
+    // do we need these?
+    QVector<net_t> cout;
+    QVector<net_t> lout;
+    QVector<net_t> lcout;
+    QVector<net_t> ioin;
 };
 
 Q_DECLARE_METATYPE(ChipDB)

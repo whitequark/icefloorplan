@@ -95,20 +95,20 @@ QString AscParser::parseCommand()
     return match.captured(1);
 }
 
-int AscParser::parseBinary()
+uint AscParser::parseBinary()
 {
     static const QRegularExpression re("[01]+");
     QRegularExpressionMatch match = matchToken(re);
     if(!match.hasMatch()) return 0;
-    return match.capturedRef(0).toInt(nullptr, 2);
+    return match.capturedRef(0).toUInt(nullptr, 2);
 }
 
-int AscParser::parseDecimal()
+uint AscParser::parseDecimal()
 {
     static const QRegularExpression re("[0-9]+");
     QRegularExpressionMatch match = matchToken(re);
     if(!match.hasMatch()) return 0;
-    return match.capturedRef(0).toInt(nullptr, 10);
+    return match.capturedRef(0).toUInt(nullptr, 10);
 }
 
 QString AscParser::parseName()

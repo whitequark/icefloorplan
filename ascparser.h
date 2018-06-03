@@ -19,8 +19,8 @@ public:
     void skipToCommand();
     QString parseCommand();
 
-    int parseDecimal();
-    int parseBinary();
+    uint parseDecimal();
+    uint parseBinary();
     QString parseName();
 
 private:

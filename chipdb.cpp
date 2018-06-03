@@ -4,25 +4,25 @@
 #include "chipdb.h"
 
 ChipDB::ChipDB()
-    : width(0), height(0), num_nets(0)
+    : width(0), height(0)
 {}
 
-ChipDB::Tile &ChipDB::tile(int x, int y)
+ChipDB::Tile &ChipDB::tile(coord_t x, coord_t y)
 {
     return tiles[qMakePair(x, y)];
 }
 
-static int parseBitdef(QString bitdef, int columns)
+static nbit_t parseBitdef(QString bitdef, nbit_t columns)
 {
     static const QRegularExpression re("^B([0-9]+)\\[([0-9]+)\\]$");
     QRegularExpressionMatch match = re.match(bitdef);
     if(!match.hasMatch()) {
         qCritical() << "malformed bitdef" << bitdef;
-        return -1;
+        return (nbit_t)-1;
     }
 
-    int row = match.capturedRef(1).toInt();
-    int col = match.capturedRef(2).toInt();
+    nbit_t row = match.capturedRef(1).toInt();
+    nbit_t col = match.capturedRef(2).toInt();
     return row * columns + col;
 }
 
@@ -35,15 +35,15 @@ bool ChipDB::parse(QIODevice *in, std::function<void(int, int)> progress)
         QString command = parser.parseCommand();
         if(command == "device") {
             QString name = parser.parseName();
-            width    = parser.parseDecimal();
-            height   = parser.parseDecimal();
-            num_nets = parser.parseDecimal();
+            width  = parser.parseDecimal();
+            height = parser.parseDecimal();
+            size_t num_nets = parser.parseDecimal();
             parser.parseEol();
 
             Q_ASSERT(this->name == "" || this->name == name);
             this->name = name;
 
-            nets .resize(num_nets);
+            nets .fill(Net { -1, "", {} }, num_nets);
             cout .fill(-1, 8 * width * height);
             lout .fill(-1, 7 * width * height);
             lcout.fill(-1, 8 * width * height);
@@ -54,10 +54,10 @@ bool ChipDB::parse(QIODevice *in, std::function<void(int, int)> progress)
 
             while(parser.isOk() && !parser.atCommand()) {
                 Pin pin;
-                pin.name    = parser.parseName();
-                pin.tile_x  = parser.parseDecimal();
-                pin.tile_y  = parser.parseDecimal();
-                pin.net_num = parser.parseDecimal();
+                pin.name   = parser.parseName();
+                pin.tile_x = parser.parseDecimal();
+                pin.tile_y = parser.parseDecimal();
+                pin.net    = parser.parseDecimal();
                 parser.parseEol();
 
                 package.pins[pin.name] = pin;
@@ -104,10 +104,10 @@ bool ChipDB::parse(QIODevice *in, std::function<void(int, int)> progress)
 
             while(parser.isOk() && !parser.atCommand()) {
                 QString func = parser.parseName();
-                QVector<int> bits;
+                QVector<nbit_t> bits;
                 while(parser.isOk() && !parser.atEol()) {
-                    int bit = parseBitdef(parser.parseName(), tile_bits.columns);
-                    if(bit == -1) return false;
+                    nbit_t bit = parseBitdef(parser.parseName(), tile_bits.columns);
+                    if(bit == (nbit_t)-1) return false;
                     bits.append(bit);
                 }
 
@@ -244,13 +244,13 @@ bool ChipDB::parse(QIODevice *in, std::function<void(int, int)> progress)
             nets[net.num] = net;
         } else if(command == "buffer" || command == "routing") {
             Connection conn;
-            int tile_x = parser.parseDecimal();
-            int tile_y = parser.parseDecimal();
-            int columns = tiles_bits[tile(tile_x, tile_y).type].columns;
+            coord_t tile_x = parser.parseDecimal();
+            coord_t tile_y = parser.parseDecimal();
+            nbit_t columns = tiles_bits[tile(tile_x, tile_y).type].columns;
             conn.dst_net_num = parser.parseDecimal();
             while(parser.isOk() && !parser.atEol()) {
-                int bit = parseBitdef(parser.parseName(), columns);
-                if(bit == -1) return false;
+                nbit_t bit = parseBitdef(parser.parseName(), columns);
+                if(bit == (nbit_t)-1) return false;
                 conn.bits.append(bit);
             }
             conn.src_net_nums.fill(-1, 1 << conn.bits.length());
