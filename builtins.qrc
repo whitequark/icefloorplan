@@ -1,9 +1,9 @@
 <RCC>
     <qresource prefix="/chipdb">
-        <file alias="384.txt">chipdb-384.txt</file>
-        <file alias="8k.txt">chipdb-8k.txt</file>
-        <file alias="5k.txt">chipdb-5k.txt</file>
-        <file alias="1k.txt">chipdb-1k.txt</file>
+        <file alias="384.txt">chipdb/chipdb-384.txt</file>
+        <file alias="8k.txt">chipdb/chipdb-8k.txt</file>
+        <file alias="5k.txt">chipdb/chipdb-5k.txt</file>
+        <file alias="1k.txt">chipdb/chipdb-1k.txt</file>
     </qresource>
     <qresource prefix="/examples">
         <file alias="blinky.txt">examples/blinky.txt</file>
