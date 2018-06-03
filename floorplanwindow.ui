@@ -45,6 +45,10 @@
     </property>
     <addaction name="actionUseOpenGL"/>
     <addaction name="separator"/>
+    <addaction name="actionCompactLogicNotation"/>
+    <addaction name="actionVerboseLogicNotation"/>
+    <addaction name="actionRawLogicNotation"/>
+    <addaction name="separator"/>
     <addaction name="actionShowUnusedLogic"/>
    </widget>
    <addaction name="menuFile"/>
@@ -74,6 +78,9 @@
    <property name="shortcut">
     <string>Ctrl+Q</string>
    </property>
+   <property name="menuRole">
+    <enum>QAction::QuitRole</enum>
+   </property>
   </action>
   <action name="actionOpenExample">
    <property name="text">
@@ -88,7 +95,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Show Unused &amp;Logic</string>
+    <string>Show &amp;Unused Logic</string>
    </property>
    <property name="statusTip">
     <string>Draw all logic elements (LUTs, FFs, buffers), even those with no useful function.</string>
@@ -105,6 +112,44 @@
     <string>Rendering with OpenGL is faster, but doesn't look as nice.</string>
    </property>
   </action>
+  <actiongroup name="actionGroupLogicNotation">
+   <action name="actionCompactLogicNotation">
+    <property name="checkable">
+     <bool>true</bool>
+    </property>
+    <property name="text">
+     <string>&amp;Compact Logic Notation</string>
+    </property>
+    <property name="statusTip">
+     <string>Draw LUTs using compact notation, e.g. &quot;≥1&quot; for a logical OR of any amount of inputs.</string>
+    </property>
+   </action>
+   <action name="actionVerboseLogicNotation">
+    <property name="checkable">
+     <bool>true</bool>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
+    <property name="text">
+     <string>&amp;Verbose Logic Notation</string>
+    </property>
+    <property name="statusTip">
+     <string>Draw LUTs using verbose notation, e.g. &quot;A+B&quot; for a logical OR of two inputs.</string>
+    </property>
+   </action>
+   <action name="actionRawLogicNotation">
+    <property name="checkable">
+     <bool>true</bool>
+    </property>
+    <property name="text">
+     <string>&amp;Raw Logic Notation</string>
+    </property>
+    <property name="statusTip">
+     <string>Draw LUTs using raw truth tables, e.g. &quot;0111&quot; for a logical OR of two inputs.</string>
+    </property>
+   </action>
+  </actiongroup>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
@@ -115,6 +160,9 @@
    <slots>
     <slot>setShowUnusedLogic(bool)</slot>
     <slot>setUseOpenGL(bool)</slot>
+    <slot>useVerboseLogicNotation()</slot>
+    <slot>useCompactLogicNotation()</slot>
+    <slot>useRawLogicNotation()</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -189,6 +237,54 @@
    <signal>toggled(bool)</signal>
    <receiver>floorplan</receiver>
    <slot>setUseOpenGL(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>199</x>
+     <y>149</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionCompactLogicNotation</sender>
+   <signal>triggered()</signal>
+   <receiver>floorplan</receiver>
+   <slot>useCompactLogicNotation()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>199</x>
+     <y>149</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionVerboseLogicNotation</sender>
+   <signal>triggered()</signal>
+   <receiver>floorplan</receiver>
+   <slot>useVerboseLogicNotation()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>199</x>
+     <y>149</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionRawLogicNotation</sender>
+   <signal>triggered()</signal>
+   <receiver>floorplan</receiver>
+   <slot>useRawLogicNotation()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>

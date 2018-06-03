@@ -44,6 +44,8 @@ public:
     void addClockSymbol(Direction dir, qreal x, qreal y);
     void addLabel(Direction anchor, qreal x, qreal y, const QString &text);
 
+    void addText(qreal x, qreal y, QString text, qreal size = 1);
+
     QGraphicsPathItem *build(const QString &toolTip = "", net_t net = -1);
 
 private:

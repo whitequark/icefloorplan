@@ -241,3 +241,29 @@ void CircuitBuilder::addLabel(CircuitBuilder::Direction anchor, qreal x, qreal y
     }
     _textPath.addPath(labelPath.translated(QPointF(-1, -1) + _origin * _grid));
 }
+
+void CircuitBuilder::addText(qreal x, qreal y, QString text, qreal size)
+{
+    QFont font = _font;
+    font.setPixelSize(font.pixelSize() * size);
+    if(text[0] == '~') {
+        font.setOverline(true);
+        text = text.mid(1);
+    }
+    QFontMetrics metrics(font);
+
+    QPoint pos;
+    QPainterPath textPath;
+    QStringList lines = text.split("\n");
+    for(QString line : lines) {
+        textPath.addText(pos, font, line);
+        pos = pos + QPoint(0, metrics.lineSpacing());
+    }
+
+    QRectF bounds = textPath.boundingRect();
+    textPath.translate(-bounds.x() - bounds.width()  / 2,
+                       -bounds.y() - bounds.height() / 2);
+    bounds = textPath.boundingRect();
+    _textPath.addPath(textPath.translated(QPointF(-1, -1) +
+                                          (_origin + QPointF(x, y)) * _grid));
+}
