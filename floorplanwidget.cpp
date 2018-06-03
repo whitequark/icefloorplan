@@ -2,17 +2,15 @@
 #include <QOpenGLWidget>
 #include <QWheelEvent>
 #include <QGraphicsSimpleTextItem>
-#include "floorplanwidget.h"
 #include "chipdb.h"
 #include "bitstream.h"
+#include "circuitbuilder.h"
+#include "floorplanwidget.h"
 
 const float tileEdge   = 0.42;
-const float wireSpc    = 0.0102;
-const float span4Base  = -0.4;
-const float span12Base = 0.4 - (12 * 2 - 1) * wireSpc;
-const float spanShort  = -0.37;
-const float spanShort2 = -0.282;
-const float labelMax   = 0.4;
+
+static const QColor BLOCK_COLOR = Qt::darkRed;
+static const QColor NET_COLOR   = Qt::darkGreen;
 
 static QColor tileColor(const QString &type, bool active)
 {
@@ -32,16 +30,78 @@ FloorplanWidget::FloorplanWidget(QWidget *parent)
 {
     setViewport(new QOpenGLWidget);
     setScene(&_scene);
-
-    _scene.clear();
     _scene.setBackgroundBrush(Qt::white);
+
+    CircuitBuilder builder;
+
+    builder.setColor(BLOCK_COLOR);
+    // lutff_N (carry adder)
+    builder.setOrigin(1, -1.5);
+    builder.addMux(CircuitBuilder::Up, 1.5, 0, 3);
+    QPointF carryI0 = builder.addPin(CircuitBuilder::Down, 0, 0);
+    QPointF carryI1 = builder.addPin(CircuitBuilder::Down, 1, 0);
+    QPointF carryI2 = builder.addPin(CircuitBuilder::Down, 2, 0);
+    QPointF carryO  = builder.addPin(CircuitBuilder::Up,   1, 0);
+    // lutff_N (look-up table)
+    builder.setOrigin(5, 0);
+    builder.addBlock(0, 0, 4, 4);
+    QPointF lutI0 = builder.addPin(CircuitBuilder::Left,  0, 0, "A");
+    QPointF lutI1 = builder.addPin(CircuitBuilder::Left,  0, 1, "B");
+    QPointF lutI2 = builder.addPin(CircuitBuilder::Left,  0, 2, "C");
+    QPointF lutI3 = builder.addPin(CircuitBuilder::Left,  0, 3, "D");
+    QPointF lutO  = builder.addPin(CircuitBuilder::Right, 3, 0, "O");
+    // lutff_N (flip-flop)
+    builder.setOrigin(13, 0);
+    builder.addBlock(0, 0, 3, 3);
+    QPointF ffD   = builder.addPin(CircuitBuilder::Left,  0, 0, "D");
+    QPointF ffEN  = builder.addPin(CircuitBuilder::Left,  0, 1, "EN");
+    QPointF ffCLK = builder.addPin(CircuitBuilder::Left,  0, 2, ">");
+    QPointF ffQ   = builder.addPin(CircuitBuilder::Right, 2, 0, "Q");
+    QPointF ffRS  = builder.addPin(CircuitBuilder::Down,  1, 2, "RS");
+    _scene.addItem(builder.build("lutff_0"));
+
+    builder.setColor(NET_COLOR);
+    builder.setOrigin(0, 0);
+    // lutff_N/lout
+    builder.moveTo(lutO);
+    builder.segmentTo(ffD);
+    _scene.addItem(builder.build("lutff_0/lout"));
+    // lutff_N/in_0
+    QPointF lutffI0 = builder.moveTo(0, 0);
+    builder.segmentTo(lutI0);
+    _scene.addItem(builder.build("lutff_0/in_0"));
+    // lutff_N/in_1
+    QPointF lutffI1 = builder.moveTo(0, 1);
+    builder.segmentTo(lutI1);
+    builder.junctionTo(carryI2.x(), lutI1.y());
+    builder.segmentTo(carryI2);
+    _scene.addItem(builder.build("lutff_0/in_1"));
+    // lutff_N/in_2
+    QPointF lutffI2 = builder.moveTo(0, 2);
+    builder.segmentTo(lutI2);
+    builder.junctionTo(carryI0.x(), lutI2.y());
+    builder.segmentTo(carryI0);
+    _scene.addItem(builder.build("lutff_0/in_2"));
+    // lutff_N/in_3
+    QPointF lutffI3 = builder.moveTo(0, 3);
+    builder.segmentTo(lutI3);
+    _scene.addItem(builder.build("lutff_0/in_3"));
+    // carry_in
+    QPointF plbCarryI = builder.moveTo(carryI1.x(), 4);
+    builder.segmentTo(carryI1);
+    _scene.addItem(builder.build("carry_in"));
+
+    scale(4, 4);
 }
 
 void FloorplanWidget::setData(Bitstream *bitstream, ChipDB *chip)
 {
     _bitstream = bitstream;
     _chip = chip;
+
+    _scene.clear();
     makeTiles();
+
     resetZoom();
 }
 

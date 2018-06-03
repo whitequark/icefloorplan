@@ -60,7 +60,6 @@ void FloorplanWindow::loadChipDB(QString device)
 
     ChipDBLoader *chipDBLoader = new ChipDBLoader(this, device);
     connect(chipDBLoader, &QThread::finished, chipDBLoader, &QObject::deleteLater);
-    connect(chipDBLoader, &QThread::finished, &_progressBar, &QWidget::hide);
 
     connect(chipDBLoader, &ChipDBLoader::progress, this, [=](int cur, int max) {
         _progressBar.setRange(0, max);

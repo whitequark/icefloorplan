@@ -16,7 +16,8 @@ SOURCES += \
     ascparser.cpp \
     bitstream.cpp \
     chipdbloader.cpp \
-    bitstreamloader.cpp
+    bitstreamloader.cpp \
+    circuitbuilder.cpp
 
 HEADERS += \
     floorplanwindow.h \
@@ -25,7 +26,8 @@ HEADERS += \
     ascparser.h \
     bitstream.h \
     chipdbloader.h \
-    bitstreamloader.h
+    bitstreamloader.h \
+    circuitbuilder.h
 
 FORMS += \
     floorplanwindow.ui

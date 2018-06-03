@@ -14,6 +14,9 @@
    <string>iCE Floorplan</string>
   </property>
   <widget class="FloorplanWidget" name="floorplan">
+   <property name="renderHints">
+    <set>QPainter::TextAntialiasing</set>
+   </property>
    <property name="dragMode">
     <enum>QGraphicsView::ScrollHandDrag</enum>
    </property>
