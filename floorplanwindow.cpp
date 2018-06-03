@@ -11,6 +11,14 @@ FloorplanWindow::FloorplanWindow(QWidget *parent) :
     _ui->setupUi(this);
     _ui->statusBar->addPermanentWidget(&_progressBar);
     _progressBar.hide();
+
+    connect(_ui->floorplan, &FloorplanWidget::netHovered, this, [=](net_t net, QString name) {
+        if(net != (net_t)-1) {
+            _ui->statusBar->showMessage("Net " + name);
+        } else {
+            _ui->statusBar->clearMessage();
+        }
+    });
 }
 
 FloorplanWindow::~FloorplanWindow()

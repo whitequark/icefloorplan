@@ -1,7 +1,8 @@
 #include <QtDebug>
 #include <QOpenGLWidget>
+#include <QGraphicsPathItem>
 #include <QWheelEvent>
-#include <QGraphicsSimpleTextItem>
+#include <QMouseEvent>
 #include "chipdb.h"
 #include "bitstream.h"
 #include "circuitbuilder.h"
@@ -26,9 +27,10 @@ static QColor tileColor(const QString &type, bool active)
 }
 
 FloorplanWidget::FloorplanWidget(QWidget *parent)
-    : QGraphicsView(parent), _bitstream(nullptr), _chip(nullptr)
+    : QGraphicsView(parent), _bitstream(nullptr), _chip(nullptr), _hovered(nullptr)
 {
     setViewport(new QOpenGLWidget);
+    viewport()->setMouseTracking(true);
     setScene(&_scene);
     _scene.setBackgroundBrush(Qt::white);
 
@@ -65,31 +67,31 @@ FloorplanWidget::FloorplanWidget(QWidget *parent)
     // lutff_N/lout
     builder.moveTo(lutO);
     builder.segmentTo(ffD);
-    _scene.addItem(builder.build("lutff_0/lout"));
+    _scene.addItem(builder.build("lutff_0/lout", 0));
     // lutff_N/in_0
     QPointF lutffI0 = builder.moveTo(0, 0);
     builder.segmentTo(lutI0);
-    _scene.addItem(builder.build("lutff_0/in_0"));
+    _scene.addItem(builder.build("lutff_0/in_0", 0));
     // lutff_N/in_1
     QPointF lutffI1 = builder.moveTo(0, 1);
     builder.segmentTo(lutI1);
     builder.junctionTo(carryI2.x(), lutI1.y());
     builder.segmentTo(carryI2);
-    _scene.addItem(builder.build("lutff_0/in_1"));
+    _scene.addItem(builder.build("lutff_0/in_1", 0));
     // lutff_N/in_2
     QPointF lutffI2 = builder.moveTo(0, 2);
     builder.segmentTo(lutI2);
     builder.junctionTo(carryI0.x(), lutI2.y());
     builder.segmentTo(carryI0);
-    _scene.addItem(builder.build("lutff_0/in_2"));
+    _scene.addItem(builder.build("lutff_0/in_2", 0));
     // lutff_N/in_3
     QPointF lutffI3 = builder.moveTo(0, 3);
     builder.segmentTo(lutI3);
-    _scene.addItem(builder.build("lutff_0/in_3"));
+    _scene.addItem(builder.build("lutff_0/in_3", 0));
     // carry_in
     QPointF plbCarryI = builder.moveTo(carryI1.x(), 4);
     builder.segmentTo(carryI1);
-    _scene.addItem(builder.build("carry_in"));
+    _scene.addItem(builder.build("carry_in", 0));
 
     scale(4, 4);
 }
@@ -122,6 +124,35 @@ void FloorplanWidget::wheelEvent(QWheelEvent *event)
         event->accept();
     } else {
         QGraphicsView::wheelEvent(event);
+    }
+}
+
+void FloorplanWidget::mouseMoveEvent(QMouseEvent *event)
+{
+    QGraphicsPathItem *netItem = nullptr;
+
+    QRect hoverRect = QRect(event->pos(), QSize()).adjusted(-10, -10, 10, 10);
+    for(QGraphicsItem *hoverItem : items(hoverRect)) {
+        QGraphicsPathItem *item = qgraphicsitem_cast<QGraphicsPathItem *>(hoverItem);
+        if(item->data(0).isValid()) {
+            netItem = item;
+            break;
+        }
+    }
+
+    if(netItem != _hovered) {
+        if(_hovered) {
+            _hovered->setPen(_hoveredOldPen);
+        }
+        if(netItem) {
+            _hoveredOldPen = netItem->pen();
+            netItem->setPen(QPen(Qt::red));
+            emit netHovered(netItem->data(0).toInt(), netItem->toolTip());
+            _hovered = netItem;
+        } else {
+            emit netHovered(-1, "");
+            _hovered = nullptr;
+        }
     }
 }
 

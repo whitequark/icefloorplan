@@ -26,12 +26,15 @@ void CircuitBuilder::setOrigin(qreal x, qreal y)
     _origin = QPointF(x, y);
 }
 
-QGraphicsPathItem *CircuitBuilder::build(const QString &toolTip)
+QGraphicsPathItem *CircuitBuilder::build(const QString &toolTip, net_t net)
 {
     QGraphicsPathItem *item = new QGraphicsPathItem;
     item->setPath(_path);
     item->setPen(_pen);
     item->setToolTip(toolTip);
+    if(net != -1) {
+        item->setData(0, net);
+    }
 
     QGraphicsPathItem *textItem = new QGraphicsPathItem(item);
     textItem->setPath(_textPath);
@@ -115,7 +118,7 @@ void CircuitBuilder::addMux(CircuitBuilder::Direction dir,
 }
 
 QPointF CircuitBuilder::addPin(CircuitBuilder::Direction dir, qreal x, qreal y,
-                            const QString &name)
+                               const QString &name)
 {
     QPointF h, v;
     directionToVectors(dir, &h, &v);
