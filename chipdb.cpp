@@ -133,107 +133,108 @@ bool ChipDB::parse(QIODevice *in, std::function<void(int, int)> progress)
                 entry.name   = parser.parseName();
                 parser.parseEol();
 
-                if (entry.name.mid(0, 6) == "sp12_h") {
+                const QString &name = entry.name;
+                if(name.startsWith("sp12_h")) {
                     net.kind = "sp12h";
-                } else if (entry.name.mid(0, 6) == "sp12_v") {
+                } else if(name.startsWith("sp12_v")) {
                     net.kind = "sp12v";
-                } else if (entry.name.mid(0, 5) == "sp4_h") {
+                } else if(name.startsWith("sp4_h")) {
                     net.kind = "sp4h";
-                } else if (entry.name.mid(0, 5) == "sp4_v") {
+                } else if(name.startsWith("sp4_v")) {
                     net.kind = "sp4v";
-                } else if (entry.name.mid(0, 6) == "fabout") {
+                } else if(name.startsWith("fabout")) {
                     net.kind = "fb";
-                } else if (entry.name.mid(0, 9) == "glb_netwk") {
+                } else if(name.startsWith("glb_netwk")) {
                     net.kind = "glb";
-                } else if (entry.name.mid(0, 3) == "io_" && entry.name.mid(4, 6) == "/D_IN_") {
+                } else if(name.startsWith("io_") && name.mid(4, 6) == "/D_IN_") {
                     net.kind = "ioin";
                     // Save for later the net number for IO IN pin.
-                    int pad = entry.name.mid(3, 1).toInt();
-                    int pin = entry.name.mid(10, 1).toInt();
+                    int pad = name.mid(3, 1).toInt();
+                    int pin = name.mid(10, 1).toInt();
                     int idx = pin + 2 * pad + 4 * (entry.tile_x + width * entry.tile_y);
                     ioin[idx] = net.num;
-                } else if (entry.name.mid(0, 12) == "io_0/D_OUT_0") {
+                } else if(name.startsWith("io_0/D_OUT_0")) {
                     net.kind = "ioou";
-                } else if (entry.name.mid(0, 12) == "io_0/D_OUT_1") {
+                } else if(name.startsWith("io_0/D_OUT_1")) {
                     net.kind = "ioou";
-                } else if (entry.name.mid(0, 12) == "io_1/D_OUT_0") {
+                } else if(name.startsWith("io_1/D_OUT_0")) {
                     net.kind = "ioou";
-                } else if (entry.name.mid(0, 12) == "io_1/D_OUT_1") {
+                } else if(name.startsWith("io_1/D_OUT_1")) {
                     net.kind = "ioou";
-                } else if (entry.name.mid(0, 12) == "io_0/OUT_ENB") {
+                } else if(name.startsWith("io_0/OUT_ENB")) {
                     net.kind = "ioou";
-                } else if (entry.name.mid(0, 12) == "io_1/OUT_ENB") {
+                } else if(name.startsWith("io_1/OUT_ENB")) {
                     net.kind = "ioou";
-                } else if (entry.name.mid(0, 13) == "io_global/cen") {
+                } else if(name.startsWith("io_global/cen")) {
                     net.kind = "iocen";
-                } else if (entry.name.mid(0, 15) == "io_global/inclk") {
+                } else if(name.startsWith("io_global/inclk")) {
                     net.kind = "ioclki";
-                } else if (entry.name.mid(0, 16) == "io_global/outclk") {
+                } else if(name.startsWith("io_global/outclk")) {
                     net.kind = "ioclko";
-                } else if (entry.name.mid(0, 10) == "ram/RDATA_") {
+                } else if(name.startsWith("ram/RDATA_")) {
                     net.kind = "rdat";
-                } else if (entry.name.mid(0, 10) == "ram/WDATA_") {
+                } else if(name.startsWith("ram/WDATA_")) {
                     net.kind = "wdat";
-                } else if (entry.name.mid(0, 10) == "ram/RADDR_") {
+                } else if(name.startsWith("ram/RADDR_")) {
                     net.kind = "radr";
-                } else if (entry.name.mid(0, 10) == "ram/WADDR_") {
+                } else if(name.startsWith("ram/WADDR_")) {
                     net.kind = "wadr";
-                } else if (entry.name.mid(0, 9) == "ram/MASK_") {
+                } else if(name.startsWith("ram/MASK_")) {
                     net.kind = "mask";
-                } else if (entry.name == "ram/RCLK") {
+                } else if(entry.name == "ram/RCLK") {
                     net.kind = "rclk";
-                } else if (entry.name == "ram/RCLKE") {
+                } else if(entry.name == "ram/RCLKE") {
                     net.kind = "rclke";
-                } else if (entry.name == "ram/RE") {
+                } else if(entry.name == "ram/RE") {
                     net.kind = "we";
-                } else if (entry.name == "ram/WCLK") {
+                } else if(entry.name == "ram/WCLK") {
                     net.kind = "wclk";
-                } else if (entry.name == "ram/WCLKE") {
+                } else if(entry.name == "ram/WCLKE") {
                     net.kind = "wclke";
-                } else if (entry.name == "ram/WE") {
+                } else if(entry.name == "ram/WE") {
                     net.kind = "re";
-                } else if (entry.name.mid(0, 7) == "local_g") {
+                } else if(name.startsWith("local_g")) {
                     net.kind = "loc";
-                } else if (entry.name.mid(0, 9) == "glb2local") {
+                } else if(name.startsWith("glb2local")) {
                     net.kind = "g2l";
-                } else if (entry.name.mid(0, 6) == "lutff_" && entry.name.mid(7, 4) == "/in_") {
+                } else if(name.startsWith("lutff_") && name.mid(7, 4) == "/in_") {
                     net.kind = "lcin";   // Logic cell input
-                } else if (entry.name.mid(0, 6) == "lutff_" && entry.name.mid(7, 4) == "/out") {
+                } else if(name.startsWith("lutff_") && name.endsWith("/out")) {
                     net.kind = "lcout";   // Logic cell output
                     // Save for later the net number for DFF out.
-                    int lut = entry.name.mid(6, 1).toInt();
+                    int lut = name.mid(6, 1).toInt();
                     int idx = lut + 8 * (entry.tile_x + width * entry.tile_y);
                     lcout[idx] = net.num;
-                } else if (entry.name.mid(0, 6) == "lutff_" && entry.name.mid(7, 5) == "/lout") {
+                } else if(name.startsWith("lutff_") && name.endsWith("/lout")) {
                     net.kind = "lout";   // Logic cell output pre-flipflop
                     // Save for later the net number for LUT-out.
-                    int lut = entry.name.mid(6, 1).toInt();
+                    int lut = name.mid(6, 1).toInt();
                     if(lut >= 7) {
                         qCritical() << "unexpected LUT 7 lout" << entry.name;
                         return false;
                     }
                     int idx = lut + 7 * (entry.tile_x + width * entry.tile_y);
                     lout[idx] = net.num;
-                } else if (entry.name.mid(0, 6) == "lutff_" && entry.name.mid(7, 5) == "/cout") {
+                } else if(name.startsWith("lutff_") && name.endsWith("/cout")) {
                     net.kind = "cout";    // Carry output
                     // Save for later the net number for carry-out.
-                    int lut = entry.name.mid(6, 1).toInt();
+                    int lut = name.mid(6, 1).toInt();
                     int idx = lut + 8 * (entry.tile_x + width * entry.tile_y);
                     cout[idx] = net.num;
-                } else if (entry.name == "carry_in") {
+                } else if(entry.name == "carry_in") {
                     net.kind = "cin";
-                } else if (entry.name == "carry_in_mux") {
+                } else if(entry.name == "carry_in_mux") {
                     net.kind = "cmuxin";
-                } else if (entry.name == "lutff_global/cen") {
+                } else if(entry.name == "lutff_global/cen") {
                     net.kind = "lcen";
-                } else if (entry.name == "lutff_global/clk") {
+                } else if(entry.name == "lutff_global/clk") {
                     net.kind = "lclk";
-                } else if (entry.name == "lutff_global/s_r") {
+                } else if(entry.name == "lutff_global/s_r") {
                     net.kind = "lsr";
-                } else if (entry.name.mid(0, 13) == "span4_vert_b_" ||
-                           entry.name.mid(0, 13) == "span4_vert_t_" ||
-                           entry.name.mid(0, 13) == "span4_horz_l_" ||
-                           entry.name.mid(0, 13) == "span4_horz_r_") {
+                } else if(name.startsWith("span4_vert_b_") ||
+                           name.startsWith("span4_vert_t_") ||
+                           name.startsWith("span4_horz_l_") ||
+                           name.startsWith("span4_horz_r_")) {
                     net.kind = "iosp4";
                 }
 
