@@ -43,6 +43,8 @@
     <property name="title">
      <string>&amp;View</string>
     </property>
+    <addaction name="actionUseOpenGL"/>
+    <addaction name="separator"/>
     <addaction name="actionShowUnusedLogic"/>
    </widget>
    <addaction name="menuFile"/>
@@ -66,6 +68,9 @@
    <property name="text">
     <string>&amp;Quit</string>
    </property>
+   <property name="statusTip">
+    <string>Exit the application.</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl+Q</string>
    </property>
@@ -74,6 +79,9 @@
    <property name="text">
     <string>Open &amp;Example</string>
    </property>
+   <property name="statusTip">
+    <string>Load a bitstream from file.</string>
+   </property>
   </action>
   <action name="actionShowUnusedLogic">
    <property name="checkable">
@@ -81,6 +89,20 @@
    </property>
    <property name="text">
     <string>Show Unused &amp;Logic</string>
+   </property>
+   <property name="statusTip">
+    <string>Draw all logic elements (LUTs, FFs, buffers), even those with no useful function.</string>
+   </property>
+  </action>
+  <action name="actionUseOpenGL">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Use Open&amp;GL</string>
+   </property>
+   <property name="statusTip">
+    <string>Rendering with OpenGL is faster, but doesn't look as nice.</string>
    </property>
   </action>
  </widget>
@@ -92,6 +114,7 @@
    <header>floorplanwidget.h</header>
    <slots>
     <slot>setShowUnusedLogic(bool)</slot>
+    <slot>setUseOpenGL(bool)</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -150,6 +173,22 @@
    <signal>toggled(bool)</signal>
    <receiver>floorplan</receiver>
    <slot>setShowUnusedLogic(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>199</x>
+     <y>149</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionUseOpenGL</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>floorplan</receiver>
+   <slot>setUseOpenGL(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>

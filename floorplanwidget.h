@@ -15,6 +15,7 @@ public:
     void setData(Bitstream *bitstream, ChipDB *chip);
 
 public slots:
+    void setUseOpenGL(bool use);
     void setShowUnusedLogic(bool show);
 
     void resetZoom();
@@ -27,6 +28,7 @@ protected:
     void mouseMoveEvent(QMouseEvent *event) override;
 
 private:
+    bool _useOpenGL;
     bool _showUnusedLogic;
 
     Bitstream *_bitstream;

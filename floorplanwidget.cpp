@@ -1,4 +1,5 @@
 #include <QtDebug>
+#include <QOpenGLWidget>
 #include <QGraphicsPathItem>
 #include <QWheelEvent>
 #include <QMouseEvent>
@@ -21,8 +22,7 @@ FloorplanWidget::FloorplanWidget(QWidget *parent)
     : QGraphicsView(parent), _showUnusedLogic(false),
       _bitstream(nullptr), _chip(nullptr), _hovered(nullptr)
 {
-    viewport()->setMouseTracking(true);
-
+    setUseOpenGL(false);
     setScene(&_scene);
     _scene.setBackgroundBrush(Qt::white);
 }
@@ -87,6 +87,13 @@ void FloorplanWidget::mouseMoveEvent(QMouseEvent *event)
             emit netHovered(-1, QString(), QString());
         }
     }
+}
+
+void FloorplanWidget::setUseOpenGL(bool use)
+{
+    _useOpenGL = use;
+    setViewport(_useOpenGL ? new QOpenGLWidget : new QWidget);
+    viewport()->setMouseTracking(true);
 }
 
 void FloorplanWidget::setShowUnusedLogic(bool show)
