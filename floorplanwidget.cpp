@@ -14,9 +14,9 @@ static const QColor BLOCK_COLOR = Qt::darkRed;
 static const QColor NET_COLOR   = Qt::darkGreen;
 
 static const QColor TILE_INACTIVE_COLOR = QColor::fromRgb(0xC0C0C0);
-static const QColor TILE_IO_COLOR       = QColor::fromRgb(0xAAEEEE);
+static const QColor TILE_IO_COLOR       = QColor::fromRgb(0xEAFBFB);
 static const QColor TILE_LOGIC_COLOR    = QColor::fromRgb(0xFBEAFB);
-static const QColor TILE_RAM_COLOR      = QColor::fromRgb(0xEEEEAA);
+static const QColor TILE_RAM_COLOR      = QColor::fromRgb(0xFBFBEA);
 
 FloorplanWidget::FloorplanWidget(QWidget *parent)
     : QGraphicsView(parent),
@@ -161,6 +161,11 @@ void FloorplanWidget::buildTile(const Bitstream::Tile &tile)
 
     if(tile.type == "logic") {
         buildLogicTile(tile, tileItem);
+    } else if(tile.type == "io") {
+        buildIOTile(tile, tileItem);
+    } else if(tile.type == "ramb" ||
+              tile.type == "ramt") {
+        buildRAMTile(tile, tileItem);
     }
 }
 
@@ -567,4 +572,18 @@ void FloorplanWidget::buildLogicTile(const Bitstream::Tile &tile, QGraphicsRectI
     }
 
     tileItem->setBrush(QBrush(isActive ? TILE_LOGIC_COLOR : TILE_INACTIVE_COLOR));
+}
+
+void FloorplanWidget::buildIOTile(const Bitstream::Tile &tile, QGraphicsRectItem *tileItem)
+{
+    bool isActive = true;
+
+    tileItem->setBrush(QBrush(isActive ? TILE_IO_COLOR : TILE_INACTIVE_COLOR));
+}
+
+void FloorplanWidget::buildRAMTile(const Bitstream::Tile &tile, QGraphicsRectItem *tileItem)
+{
+    bool isActive = true;
+
+    tileItem->setBrush(QBrush(isActive ? TILE_RAM_COLOR : TILE_INACTIVE_COLOR));
 }

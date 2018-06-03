@@ -47,6 +47,8 @@ private:
     void buildTiles();
     void buildTile(const Bitstream::Tile &tile);
     void buildLogicTile(const Bitstream::Tile &tile, QGraphicsRectItem *tileItem);
+    void buildIOTile(const Bitstream::Tile &tile, QGraphicsRectItem *tileItem);
+    void buildRAMTile(const Bitstream::Tile &tile, QGraphicsRectItem *tileItem);
 
     QString recognizeFunction(uint lutData, bool hasA, bool hasB, bool hasC, bool hasD,
                               bool describeInputs = true) const;
