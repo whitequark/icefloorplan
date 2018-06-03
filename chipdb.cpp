@@ -12,6 +12,11 @@ ChipDB::Tile &ChipDB::tile(coord_t x, coord_t y)
     return tiles[qMakePair(x, y)];
 }
 
+QMap<QString, net_t> ChipDB::tileNets(coord_t x, coord_t y)
+{
+    return tilesNets[qMakePair(x, y)];
+}
+
 net_t ChipDB::tileNet(coord_t x, coord_t y, const QString &name)
 {
     return tilesNets[qMakePair(x, y)][name];
@@ -116,6 +121,7 @@ bool ChipDB::parse(QIODevice *in, std::function<void(int, int)> progress)
                     bits.append(bit);
                 }
 
+                std::reverse(bits.begin(), bits.end());
                 tile_bits.functions[func] = bits;
             }
 

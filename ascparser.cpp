@@ -123,7 +123,7 @@ uint AscParser::parseDecimal()
 
 QString AscParser::parseName()
 {
-    static const QRegularExpression re("[A-Za-z0-9$][A-Za-z0-9_/\\[\\].:$]*");
+    static const QRegularExpression re("[A-Za-z0-9$\\\\][A-Za-z0-9_/\\[\\].:$\\\\]*");
     QRegularExpressionMatch match = matchToken(re);
     if(!match.hasMatch()) return "";
     return match.captured(0);

@@ -13,25 +13,32 @@ public:
     explicit FloorplanWidget(QWidget *parent = nullptr);
 
     void setData(Bitstream *bitstream, ChipDB *chip);
+
+public slots:
+    void setShowUnusedLogic(bool show);
+
     void resetZoom();
 
 signals:
-    void netHovered(net_t net, QString name);
+    void netHovered(net_t net, QString name, QString symbol);
 
 protected:
     void wheelEvent(QWheelEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
 
 private:
+    bool _showUnusedLogic;
+
     Bitstream *_bitstream;
     ChipDB *_chip;
     QGraphicsScene _scene;
     QGraphicsPathItem *_hovered;
     QPen _hoveredOldPen;
 
-    void buildTile(coord_t x, coord_t y);
-    void buildLogicTile(coord_t x, coord_t y);
-//    void makeTiles();
+    void clear();
+    void buildTiles();
+    void buildTile(const Bitstream::Tile &tile);
+    void buildLogicTile(const Bitstream::Tile &tile, QGraphicsRectItem *tileItem);
 };
 
 #endif // FLOORPLANWIDGET_H

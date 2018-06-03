@@ -61,6 +61,7 @@ public:
     bool parse(QIODevice *in, std::function<void(int,int)> progress);
 
     Tile &tile(coord_t x, coord_t y);
+    QMap<QString, net_t> tileNets(coord_t x, coord_t y);
     net_t tileNet(coord_t x, coord_t y, const QString &name);
 
     QString name;

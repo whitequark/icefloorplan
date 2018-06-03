@@ -3,8 +3,8 @@
 #include <QFontMetrics>
 #include "circuitbuilder.h"
 
-CircuitBuilder::CircuitBuilder()
-    : _pen(Qt::black), _font("fixed")
+CircuitBuilder::CircuitBuilder(QGraphicsItem *parent)
+    : _pen(Qt::black), _font("fixed"), _parent(parent)
 {
     _pen.setCapStyle(Qt::FlatCap);
     setGrid(20);
@@ -28,7 +28,9 @@ void CircuitBuilder::setOrigin(qreal x, qreal y)
 
 QGraphicsPathItem *CircuitBuilder::build(const QString &toolTip, net_t net)
 {
-    QGraphicsPathItem *item = new QGraphicsPathItem;
+    if(_path.isEmpty() && _textPath.isEmpty()) return nullptr;
+
+    QGraphicsPathItem *item = new QGraphicsPathItem(_parent);
     item->setPath(_path);
     item->setPen(_pen);
     item->setToolTip(toolTip);
@@ -70,6 +72,20 @@ QPointF CircuitBuilder::segmentTo(QPointF p)
     return p;
 }
 
+QPointF CircuitBuilder::junctionAt(qreal x, qreal y)
+{
+    QPointF p = _origin + QPointF(x, y);
+    return junctionAt(p);
+}
+
+QPointF CircuitBuilder::junctionAt(QPointF p)
+{
+    QPointF current = _path.currentPosition();
+    _path.addEllipse((p + QPointF(0.5, 0.5)) * _grid, _pen.widthF(), _pen.widthF());
+    _path.moveTo(current);
+    return p;
+}
+
 QPointF CircuitBuilder::junctionTo(qreal x, qreal y)
 {
     QPointF p = _origin + QPointF(x, y);
@@ -78,9 +94,36 @@ QPointF CircuitBuilder::junctionTo(qreal x, qreal y)
 
 QPointF CircuitBuilder::junctionTo(QPointF p)
 {
-    _path.addEllipse((p + QPointF(0.5, 0.5)) * _grid, _pen.widthF(), _pen.widthF());
+    junctionAt(p);
     moveTo(p);
     return p;
+}
+
+void CircuitBuilder::junction(bool condition)
+{
+    if(condition) {
+        QPointF current = _path.currentPosition();
+        _path.addEllipse(_path.currentPosition(), _pen.widthF(), _pen.widthF());
+        _path.moveTo(current);
+    }
+}
+
+QPointF CircuitBuilder::joinTo(qreal x, qreal y, bool junction)
+{
+    if(junction) {
+        return junctionTo(x, y);
+    } else {
+        return segmentTo(x, y);
+    }
+}
+
+QPointF CircuitBuilder::joinTo(QPointF p, bool junction)
+{
+    if(junction) {
+        return junctionTo(p);
+    } else {
+        return segmentTo(p);
+    }
 }
 
 void CircuitBuilder::addBlock(qreal x, qreal y, qreal w, qreal h)
@@ -117,17 +160,39 @@ void CircuitBuilder::addMux(CircuitBuilder::Direction dir,
     _path.addPath(muxPath);
 }
 
+void CircuitBuilder::addBuffer(CircuitBuilder::Direction dir, qreal x, qreal y)
+{
+    QPointF h, v;
+    directionToVectors(dir, &h, &v);
+
+    QPainterPath bufferPath;
+    bufferPath.moveTo(-h * 0.75 * _grid);
+    bufferPath.lineTo( v * _grid);
+    bufferPath.lineTo(+h * 0.75 * _grid);
+    bufferPath.lineTo(-h * 0.75 * _grid);
+    bufferPath.translate(h / 2 * _grid);
+
+    bufferPath.translate((_origin + QPointF(x, y)) * _grid);
+    _path.addPath(bufferPath);
+}
+
 QPointF CircuitBuilder::addPin(CircuitBuilder::Direction dir, qreal x, qreal y,
-                               const QString &name)
+                               const QString &name, bool activeLow)
 {
     QPointF h, v;
     directionToVectors(dir, &h, &v);
 
     QPainterPath pinPath;
-    pinPath.moveTo(0.5 * v * _grid);
+    if(activeLow) {
+        pinPath.addEllipse(0.625 * v * _grid, _grid / 8, _grid / 8);
+        pinPath.moveTo(0.75 * v * _grid);
+    } else {
+        pinPath.moveTo(0.5 * v * _grid);
+    }
     pinPath.lineTo(v * _grid);
 
-    pinPath.translate((_origin + QPointF(x + 0.5, y + 0.5)) * _grid);
+    pinPath.translate((_origin + QPointF(x + 0.5, y + 0.5)) * _grid
+                      + 0.5 * v * _pen.widthF());
     _path.addPath(pinPath);
 
     if(name == ">") {
@@ -149,7 +214,8 @@ void CircuitBuilder::addClockSymbol(CircuitBuilder::Direction dir, qreal x, qrea
     symbolPath.lineTo( v * 0.1      * _grid);
     symbolPath.lineTo((v * 0.5 + h * 0.4) * _grid);
 
-    symbolPath.translate((_origin + QPointF(x + 0.5, y + 0.5)) * _grid);
+    symbolPath.translate((_origin + QPointF(x + 0.5, y + 0.5)) * _grid
+                         - 0.5 * v * _pen.widthF());
     _path.addPath(symbolPath);
 }
 

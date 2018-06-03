@@ -1,5 +1,6 @@
 #include <QProgressBar>
 #include <QMessageBox>
+#include <QFileDialog>
 #include "chipdbloader.h"
 #include "bitstreamloader.h"
 #include "floorplanwindow.h"
@@ -12,9 +13,14 @@ FloorplanWindow::FloorplanWindow(QWidget *parent) :
     _ui->statusBar->addPermanentWidget(&_progressBar);
     _progressBar.hide();
 
-    connect(_ui->floorplan, &FloorplanWidget::netHovered, this, [=](net_t net, QString name) {
+    connect(_ui->floorplan, &FloorplanWidget::netHovered, this,
+            [=](net_t net, QString name, QString symbol) {
         if(net != (net_t)-1) {
-            _ui->statusBar->showMessage("Net " + name);
+            QString msg = QString("Net %2 (%1)").arg(name).arg(net);
+            if(!symbol.isNull()) {
+                msg += ", symbol " + symbol;
+            }
+            _ui->statusBar->showMessage(msg);
         } else {
             _ui->statusBar->clearMessage();
         }
@@ -26,9 +32,18 @@ FloorplanWindow::~FloorplanWindow()
     delete _ui;
 }
 
-void FloorplanWindow::openFile()
+void FloorplanWindow::openExample()
 {
     loadBitstream(":/examples/blinky.txt");
+}
+
+void FloorplanWindow::openFile()
+{
+    QString fileName = QFileDialog::getOpenFileName(
+                this, "Open bitstream", "", "Bitstreams(*.txt, *.asc)");
+    if(!fileName.isNull()) {
+        loadBitstream(fileName);
+    }
 }
 
 void FloorplanWindow::loadBitstream(QString filename)

@@ -25,6 +25,7 @@ private:
     Bitstream _bitstream;
 
 private slots:
+    void openExample();
     void openFile();
     void loadBitstream(QString filename);
     void loadChipDB(QString device);

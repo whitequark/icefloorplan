@@ -1,7 +1,7 @@
 # arachne-pnr 0.1+298+0 (git sha1 0d8c81c, g++ 7.3.0-16 -O2)
 .model top
-.inputs clk
-.outputs a b
+.inputs clk rst
+.outputs a b c
 .names $false
 .names $true
 1
@@ -9,112 +9,189 @@
 .param PIN_TYPE 011001
 .gate SB_IO PACKAGE_PIN=b LATCH_INPUT_VALUE= CLOCK_ENABLE= INPUT_CLK= OUTPUT_CLK= OUTPUT_ENABLE= D_OUT_0=b$2 D_OUT_1= D_IN_0= D_IN_1=
 .param PIN_TYPE 011001
+.gate SB_IO PACKAGE_PIN=c LATCH_INPUT_VALUE= CLOCK_ENABLE= INPUT_CLK= OUTPUT_CLK= OUTPUT_ENABLE= D_OUT_0=c$2 D_OUT_1= D_IN_0= D_IN_1=
+.param PIN_TYPE 011001
 .gate SB_IO PACKAGE_PIN=clk LATCH_INPUT_VALUE= CLOCK_ENABLE= INPUT_CLK= OUTPUT_CLK= OUTPUT_ENABLE= D_OUT_0= D_OUT_1= D_IN_0=clk$2 D_IN_1=
 .param PIN_TYPE 000001
-.gate ICESTORM_LC I0=$false I1=$true I2=div[0] I3=$false CIN= CLK=clk$2 CEN=$true SR=$false LO= O=div[0] COUT=
-.attr src "blinky.v:4|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:2|blinky.v:5|/home/whitequark/.local/bin/../share/yosys/ice40/arith_map.v:53"
+.gate SB_IO PACKAGE_PIN=rst LATCH_INPUT_VALUE= CLOCK_ENABLE= INPUT_CLK= OUTPUT_CLK= OUTPUT_ENABLE= D_OUT_0= D_OUT_1= D_IN_0=rst$2 D_IN_1=
+.param PIN_TYPE 000001
+.gate ICESTORM_LC I0=$false I1=$true I2=div2[0] I3=$false CIN= CLK=clk$2 CEN=$true SR=$false LO= O=div2[0] COUT=
+.attr src "blinky.v:14|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:1|blinky.v:15|/home/whitequark/.local/bin/../share/yosys/ice40/arith_map.v:53"
 .param DFF_ENABLE 1
 .param LUT_INIT 0110100110010110
-.gate ICESTORM_LC I0=div[1] I1=$false I2=$false I3=$false CIN= CLK=clk$2 CEN=div[0] SR=$false LO= O=div[1] COUT=
-.attr src "blinky.v:4|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:8|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:40"
+.param NEG_CLK 1
+.gate ICESTORM_LC I0=div2[1] I1=$false I2=$false I3=$false CIN= CLK=clk$2 CEN=div2[0] SR=$false LO= O=div2[1] COUT=
+.attr src "blinky.v:14|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:7|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:40"
 .param DFF_ENABLE 1
 .param LUT_INIT 01
-.gate ICESTORM_LC I0=$false I1=$false I2=div[2] I3=$auto$alumacc.cc:474:replace_alu$4.C[2] CIN=$auto$alumacc.cc:474:replace_alu$4.C[2] CLK=clk$2 CEN=$true SR=$false LO= O=div[2] COUT=$auto$alumacc.cc:474:replace_alu$4.C[3]
-.attr src "blinky.v:4|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:2|blinky.v:5|/home/whitequark/.local/bin/../share/yosys/ice40/arith_map.v:53"
+.param NEG_CLK 1
+.gate ICESTORM_LC I0=$false I1=$false I2=div2[2] I3=$auto$alumacc.cc:474:replace_alu$8.C[2] CIN=$auto$alumacc.cc:474:replace_alu$8.C[2] CLK=clk$2 CEN=$true SR=$false LO= O=div2[2] COUT=$auto$alumacc.cc:474:replace_alu$8.C[3]
+.attr src "blinky.v:14|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:1|blinky.v:15|/home/whitequark/.local/bin/../share/yosys/ice40/arith_map.v:53"
 .param CARRY_ENABLE 1
 .param DFF_ENABLE 1
 .param LUT_INIT 0110100110010110
-.gate ICESTORM_LC I0=$false I1=$false I2=div[3] I3=$auto$alumacc.cc:474:replace_alu$4.C[3] CIN=$auto$alumacc.cc:474:replace_alu$4.C[3] CLK=clk$2 CEN=$true SR=$false LO= O=div[3] COUT=$auto$alumacc.cc:474:replace_alu$4.C[4]
-.attr src "blinky.v:4|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:2|blinky.v:5|/home/whitequark/.local/bin/../share/yosys/ice40/arith_map.v:53"
+.param NEG_CLK 1
+.gate ICESTORM_LC I0=$false I1=$false I2=div2[3] I3=$auto$alumacc.cc:474:replace_alu$8.C[3] CIN=$auto$alumacc.cc:474:replace_alu$8.C[3] CLK=clk$2 CEN=$true SR=$false LO= O=div2[3] COUT=$auto$alumacc.cc:474:replace_alu$8.C[4]
+.attr src "blinky.v:14|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:1|blinky.v:15|/home/whitequark/.local/bin/../share/yosys/ice40/arith_map.v:53"
 .param CARRY_ENABLE 1
 .param DFF_ENABLE 1
 .param LUT_INIT 0110100110010110
-.gate ICESTORM_LC I0=$false I1=$false I2=div[4] I3=$auto$alumacc.cc:474:replace_alu$4.C[4] CIN=$auto$alumacc.cc:474:replace_alu$4.C[4] CLK=clk$2 CEN=$true SR=$false LO= O=div[4] COUT=$auto$alumacc.cc:474:replace_alu$4.C[5]
-.attr src "blinky.v:4|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:2|blinky.v:5|/home/whitequark/.local/bin/../share/yosys/ice40/arith_map.v:53"
+.param NEG_CLK 1
+.gate ICESTORM_LC I0=$false I1=$false I2=div2[4] I3=$auto$alumacc.cc:474:replace_alu$8.C[4] CIN=$auto$alumacc.cc:474:replace_alu$8.C[4] CLK=clk$2 CEN=$true SR=$false LO= O=div2[4] COUT=$auto$alumacc.cc:474:replace_alu$8.C[5]
+.attr src "blinky.v:14|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:1|blinky.v:15|/home/whitequark/.local/bin/../share/yosys/ice40/arith_map.v:53"
 .param CARRY_ENABLE 1
 .param DFF_ENABLE 1
 .param LUT_INIT 0110100110010110
-.gate ICESTORM_LC I0=$false I1=$false I2=div[5] I3=$auto$alumacc.cc:474:replace_alu$4.C[5] CIN=$auto$alumacc.cc:474:replace_alu$4.C[5] CLK=clk$2 CEN=$true SR=$false LO= O=div[5] COUT=$auto$alumacc.cc:474:replace_alu$4.C[6]
-.attr src "blinky.v:4|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:2|blinky.v:5|/home/whitequark/.local/bin/../share/yosys/ice40/arith_map.v:53"
+.param NEG_CLK 1
+.gate ICESTORM_LC I0=$false I1=$false I2=div2[5] I3=$auto$alumacc.cc:474:replace_alu$8.C[5] CIN=$auto$alumacc.cc:474:replace_alu$8.C[5] CLK=clk$2 CEN=$true SR=$false LO= O=div2[5] COUT=$auto$alumacc.cc:474:replace_alu$8.C[6]
+.attr src "blinky.v:14|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:1|blinky.v:15|/home/whitequark/.local/bin/../share/yosys/ice40/arith_map.v:53"
 .param CARRY_ENABLE 1
 .param DFF_ENABLE 1
 .param LUT_INIT 0110100110010110
-.gate ICESTORM_LC I0=$false I1=$false I2=div[6] I3=$auto$alumacc.cc:474:replace_alu$4.C[6] CIN=$auto$alumacc.cc:474:replace_alu$4.C[6] CLK=clk$2 CEN=$true SR=$false LO= O=div[6] COUT=$auto$alumacc.cc:474:replace_alu$4.C[7]
-.attr src "blinky.v:4|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:2|blinky.v:5|/home/whitequark/.local/bin/../share/yosys/ice40/arith_map.v:53"
+.param NEG_CLK 1
+.gate ICESTORM_LC I0=$false I1=$false I2=div2[6] I3=$auto$alumacc.cc:474:replace_alu$8.C[6] CIN=$auto$alumacc.cc:474:replace_alu$8.C[6] CLK=clk$2 CEN=$true SR=$false LO= O=div2[6] COUT=$auto$alumacc.cc:474:replace_alu$8.C[7]
+.attr src "blinky.v:14|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:1|blinky.v:15|/home/whitequark/.local/bin/../share/yosys/ice40/arith_map.v:53"
 .param CARRY_ENABLE 1
 .param DFF_ENABLE 1
 .param LUT_INIT 0110100110010110
-.gate ICESTORM_LC I0=$false I1=$false I2=div[7] I3=$auto$alumacc.cc:474:replace_alu$4.C[7] CIN=$auto$alumacc.cc:474:replace_alu$4.C[7] CLK=clk$2 CEN=$true SR=$false LO= O=div[7] COUT=$auto$alumacc.cc:474:replace_alu$4.C[8]
-.attr src "blinky.v:4|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:2|blinky.v:5|/home/whitequark/.local/bin/../share/yosys/ice40/arith_map.v:53"
+.param NEG_CLK 1
+.gate ICESTORM_LC I0=$false I1=$false I2=c$2 I3=$auto$alumacc.cc:474:replace_alu$8.C[7] CIN= CLK=clk$2 CEN=$true SR=$false LO= O=c$2 COUT=
+.attr src "blinky.v:14|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:1|blinky.v:15|/home/whitequark/.local/bin/../share/yosys/ice40/arith_map.v:53"
+.param DFF_ENABLE 1
+.param LUT_INIT 0110100110010110
+.param NEG_CLK 1
+.gate ICESTORM_LC I0=$false I1=$true I2=div1[0] I3=$false CIN= CLK=clk$2 CEN=$true SR=$abc$299$n1 LO= O=div1[0] COUT=
+.attr src "blinky.v:4|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:12|blinky.v:8|/home/whitequark/.local/bin/../share/yosys/ice40/arith_map.v:53"
+.param ASYNC_SR 1
+.param DFF_ENABLE 1
+.param LUT_INIT 0110100110010110
+.gate ICESTORM_LC I0=div1[1] I1=$false I2=$false I3=$false CIN= CLK=clk$2 CEN=div1[0] SR=$abc$299$n1 LO= O=div1[1] COUT=
+.attr src "blinky.v:4|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:22|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:40"
+.param ASYNC_SR 1
+.param DFF_ENABLE 1
+.param LUT_INIT 01
+.gate ICESTORM_LC I0=$false I1=$false I2=div1[2] I3=$auto$alumacc.cc:474:replace_alu$11.C[2] CIN=$auto$alumacc.cc:474:replace_alu$11.C[2] CLK=clk$2 CEN=$true SR=$abc$299$n1 LO= O=div1[2] COUT=$auto$alumacc.cc:474:replace_alu$11.C[3]
+.attr src "blinky.v:4|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:12|blinky.v:8|/home/whitequark/.local/bin/../share/yosys/ice40/arith_map.v:53"
+.param ASYNC_SR 1
 .param CARRY_ENABLE 1
 .param DFF_ENABLE 1
 .param LUT_INIT 0110100110010110
-.gate ICESTORM_LC I0=$false I1=$false I2=div[8] I3=$auto$alumacc.cc:474:replace_alu$4.C[8] CIN=$auto$alumacc.cc:474:replace_alu$4.C[8] CLK=clk$2 CEN=$true SR=$false LO= O=div[8] COUT=$auto$alumacc.cc:474:replace_alu$4.C[9]
-.attr src "blinky.v:4|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:2|blinky.v:5|/home/whitequark/.local/bin/../share/yosys/ice40/arith_map.v:53"
+.gate ICESTORM_LC I0=$false I1=$false I2=div1[3] I3=$auto$alumacc.cc:474:replace_alu$11.C[3] CIN=$auto$alumacc.cc:474:replace_alu$11.C[3] CLK=clk$2 CEN=$true SR=$abc$299$n1 LO= O=div1[3] COUT=$auto$alumacc.cc:474:replace_alu$11.C[4]
+.attr src "blinky.v:4|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:12|blinky.v:8|/home/whitequark/.local/bin/../share/yosys/ice40/arith_map.v:53"
+.param ASYNC_SR 1
 .param CARRY_ENABLE 1
 .param DFF_ENABLE 1
 .param LUT_INIT 0110100110010110
-.gate ICESTORM_LC I0=$false I1=$false I2=div[9] I3=$auto$alumacc.cc:474:replace_alu$4.C[9] CIN=$auto$alumacc.cc:474:replace_alu$4.C[9] CLK=clk$2 CEN=$true SR=$false LO= O=div[9] COUT=$auto$alumacc.cc:474:replace_alu$4.C[10]
-.attr src "blinky.v:4|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:2|blinky.v:5|/home/whitequark/.local/bin/../share/yosys/ice40/arith_map.v:53"
+.gate ICESTORM_LC I0=$false I1=$false I2=div1[4] I3=$auto$alumacc.cc:474:replace_alu$11.C[4] CIN=$auto$alumacc.cc:474:replace_alu$11.C[4] CLK=clk$2 CEN=$true SR=$abc$299$n1 LO= O=div1[4] COUT=$auto$alumacc.cc:474:replace_alu$11.C[5]
+.attr src "blinky.v:4|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:12|blinky.v:8|/home/whitequark/.local/bin/../share/yosys/ice40/arith_map.v:53"
+.param ASYNC_SR 1
 .param CARRY_ENABLE 1
 .param DFF_ENABLE 1
 .param LUT_INIT 0110100110010110
-.gate ICESTORM_LC I0=$false I1=$false I2=div[10] I3=$auto$alumacc.cc:474:replace_alu$4.C[10] CIN=$auto$alumacc.cc:474:replace_alu$4.C[10] CLK=clk$2 CEN=$true SR=$false LO= O=div[10] COUT=$auto$alumacc.cc:474:replace_alu$4.C[11]
-.attr src "blinky.v:4|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:2|blinky.v:5|/home/whitequark/.local/bin/../share/yosys/ice40/arith_map.v:53"
+.gate ICESTORM_LC I0=$false I1=$false I2=div1[5] I3=$auto$alumacc.cc:474:replace_alu$11.C[5] CIN=$auto$alumacc.cc:474:replace_alu$11.C[5] CLK=clk$2 CEN=$true SR=$abc$299$n1 LO= O=div1[5] COUT=$auto$alumacc.cc:474:replace_alu$11.C[6]
+.attr src "blinky.v:4|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:12|blinky.v:8|/home/whitequark/.local/bin/../share/yosys/ice40/arith_map.v:53"
+.param ASYNC_SR 1
 .param CARRY_ENABLE 1
 .param DFF_ENABLE 1
 .param LUT_INIT 0110100110010110
-.gate ICESTORM_LC I0=$false I1=$false I2=div[11] I3=$auto$alumacc.cc:474:replace_alu$4.C[11] CIN=$auto$alumacc.cc:474:replace_alu$4.C[11] CLK=clk$2 CEN=$true SR=$false LO= O=div[11] COUT=$auto$alumacc.cc:474:replace_alu$4.C[12]
-.attr src "blinky.v:4|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:2|blinky.v:5|/home/whitequark/.local/bin/../share/yosys/ice40/arith_map.v:53"
+.gate ICESTORM_LC I0=$false I1=$false I2=div1[6] I3=$auto$alumacc.cc:474:replace_alu$11.C[6] CIN=$auto$alumacc.cc:474:replace_alu$11.C[6] CLK=clk$2 CEN=$true SR=$abc$299$n1 LO= O=div1[6] COUT=$auto$alumacc.cc:474:replace_alu$11.C[7]
+.attr src "blinky.v:4|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:12|blinky.v:8|/home/whitequark/.local/bin/../share/yosys/ice40/arith_map.v:53"
+.param ASYNC_SR 1
 .param CARRY_ENABLE 1
 .param DFF_ENABLE 1
 .param LUT_INIT 0110100110010110
-.gate ICESTORM_LC I0=$false I1=$false I2=div[12] I3=$auto$alumacc.cc:474:replace_alu$4.C[12] CIN=$auto$alumacc.cc:474:replace_alu$4.C[12] CLK=clk$2 CEN=$true SR=$false LO= O=div[12] COUT=$auto$alumacc.cc:474:replace_alu$4.C[13]
-.attr src "blinky.v:4|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:2|blinky.v:5|/home/whitequark/.local/bin/../share/yosys/ice40/arith_map.v:53"
+.gate ICESTORM_LC I0=$false I1=$false I2=div1[7] I3=$auto$alumacc.cc:474:replace_alu$11.C[7] CIN=$auto$alumacc.cc:474:replace_alu$11.C[7] CLK=clk$2 CEN=$true SR=$abc$299$n1 LO= O=div1[7] COUT=$auto$alumacc.cc:474:replace_alu$11.C[8]
+.attr src "blinky.v:4|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:12|blinky.v:8|/home/whitequark/.local/bin/../share/yosys/ice40/arith_map.v:53"
+.param ASYNC_SR 1
 .param CARRY_ENABLE 1
 .param DFF_ENABLE 1
 .param LUT_INIT 0110100110010110
-.gate ICESTORM_LC I0=$false I1=$false I2=div[13] I3=$auto$alumacc.cc:474:replace_alu$4.C[13] CIN=$auto$alumacc.cc:474:replace_alu$4.C[13] CLK=clk$2 CEN=$true SR=$false LO= O=div[13] COUT=$auto$alumacc.cc:474:replace_alu$4.C[14]
-.attr src "blinky.v:4|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:2|blinky.v:5|/home/whitequark/.local/bin/../share/yosys/ice40/arith_map.v:53"
+.gate ICESTORM_LC I0=$false I1=$false I2=div1[8] I3=$auto$alumacc.cc:474:replace_alu$11.C[8] CIN=$auto$alumacc.cc:474:replace_alu$11.C[8] CLK=clk$2 CEN=$true SR=$abc$299$n1 LO= O=div1[8] COUT=$auto$alumacc.cc:474:replace_alu$11.C[9]
+.attr src "blinky.v:4|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:12|blinky.v:8|/home/whitequark/.local/bin/../share/yosys/ice40/arith_map.v:53"
+.param ASYNC_SR 1
 .param CARRY_ENABLE 1
 .param DFF_ENABLE 1
 .param LUT_INIT 0110100110010110
-.gate ICESTORM_LC I0=$false I1=$false I2=div[14] I3=$auto$alumacc.cc:474:replace_alu$4.C[14] CIN=$auto$alumacc.cc:474:replace_alu$4.C[14] CLK=clk$2 CEN=$true SR=$false LO= O=div[14] COUT=$auto$alumacc.cc:474:replace_alu$4.C[15]
-.attr src "blinky.v:4|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:2|blinky.v:5|/home/whitequark/.local/bin/../share/yosys/ice40/arith_map.v:53"
+.gate ICESTORM_LC I0=$false I1=$false I2=div1[9] I3=$auto$alumacc.cc:474:replace_alu$11.C[9] CIN=$auto$alumacc.cc:474:replace_alu$11.C[9] CLK=clk$2 CEN=$true SR=$abc$299$n1 LO= O=div1[9] COUT=$auto$alumacc.cc:474:replace_alu$11.C[10]
+.attr src "blinky.v:4|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:12|blinky.v:8|/home/whitequark/.local/bin/../share/yosys/ice40/arith_map.v:53"
+.param ASYNC_SR 1
 .param CARRY_ENABLE 1
 .param DFF_ENABLE 1
 .param LUT_INIT 0110100110010110
-.gate ICESTORM_LC I0=$false I1=$false I2=div[15] I3=$auto$alumacc.cc:474:replace_alu$4.C[15] CIN=$auto$alumacc.cc:474:replace_alu$4.C[15] CLK=clk$2 CEN=$true SR=$false LO= O=div[15] COUT=$auto$alumacc.cc:474:replace_alu$4.C[16]
-.attr src "blinky.v:4|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:2|blinky.v:5|/home/whitequark/.local/bin/../share/yosys/ice40/arith_map.v:53"
+.gate ICESTORM_LC I0=$false I1=$false I2=div1[10] I3=$auto$alumacc.cc:474:replace_alu$11.C[10] CIN=$auto$alumacc.cc:474:replace_alu$11.C[10] CLK=clk$2 CEN=$true SR=$abc$299$n1 LO= O=div1[10] COUT=$auto$alumacc.cc:474:replace_alu$11.C[11]
+.attr src "blinky.v:4|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:12|blinky.v:8|/home/whitequark/.local/bin/../share/yosys/ice40/arith_map.v:53"
+.param ASYNC_SR 1
 .param CARRY_ENABLE 1
 .param DFF_ENABLE 1
 .param LUT_INIT 0110100110010110
-.gate ICESTORM_LC I0=$false I1=$false I2=div[16] I3=$auto$alumacc.cc:474:replace_alu$4.C[16] CIN=$auto$alumacc.cc:474:replace_alu$4.C[16] CLK=clk$2 CEN=$true SR=$false LO= O=div[16] COUT=$auto$alumacc.cc:474:replace_alu$4.C[17]
-.attr src "blinky.v:4|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:2|blinky.v:5|/home/whitequark/.local/bin/../share/yosys/ice40/arith_map.v:53"
+.gate ICESTORM_LC I0=$false I1=$false I2=div1[11] I3=$auto$alumacc.cc:474:replace_alu$11.C[11] CIN=$auto$alumacc.cc:474:replace_alu$11.C[11] CLK=clk$2 CEN=$true SR=$abc$299$n1 LO= O=div1[11] COUT=$auto$alumacc.cc:474:replace_alu$11.C[12]
+.attr src "blinky.v:4|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:12|blinky.v:8|/home/whitequark/.local/bin/../share/yosys/ice40/arith_map.v:53"
+.param ASYNC_SR 1
 .param CARRY_ENABLE 1
 .param DFF_ENABLE 1
 .param LUT_INIT 0110100110010110
-.gate ICESTORM_LC I0=$false I1=$false I2=div[17] I3=$auto$alumacc.cc:474:replace_alu$4.C[17] CIN=$auto$alumacc.cc:474:replace_alu$4.C[17] CLK=clk$2 CEN=$true SR=$false LO= O=div[17] COUT=$auto$alumacc.cc:474:replace_alu$4.C[18]
-.attr src "blinky.v:4|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:2|blinky.v:5|/home/whitequark/.local/bin/../share/yosys/ice40/arith_map.v:53"
+.gate ICESTORM_LC I0=$false I1=$false I2=div1[12] I3=$auto$alumacc.cc:474:replace_alu$11.C[12] CIN=$auto$alumacc.cc:474:replace_alu$11.C[12] CLK=clk$2 CEN=$true SR=$abc$299$n1 LO= O=div1[12] COUT=$auto$alumacc.cc:474:replace_alu$11.C[13]
+.attr src "blinky.v:4|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:12|blinky.v:8|/home/whitequark/.local/bin/../share/yosys/ice40/arith_map.v:53"
+.param ASYNC_SR 1
 .param CARRY_ENABLE 1
 .param DFF_ENABLE 1
 .param LUT_INIT 0110100110010110
-.gate ICESTORM_LC I0=$false I1=$false I2=div[18] I3=$auto$alumacc.cc:474:replace_alu$4.C[18] CIN=$auto$alumacc.cc:474:replace_alu$4.C[18] CLK=clk$2 CEN=$true SR=$false LO= O=div[18] COUT=$auto$alumacc.cc:474:replace_alu$4.C[19]
-.attr src "blinky.v:4|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:2|blinky.v:5|/home/whitequark/.local/bin/../share/yosys/ice40/arith_map.v:53"
+.gate ICESTORM_LC I0=$false I1=$false I2=div1[13] I3=$auto$alumacc.cc:474:replace_alu$11.C[13] CIN=$auto$alumacc.cc:474:replace_alu$11.C[13] CLK=clk$2 CEN=$true SR=$abc$299$n1 LO= O=div1[13] COUT=$auto$alumacc.cc:474:replace_alu$11.C[14]
+.attr src "blinky.v:4|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:12|blinky.v:8|/home/whitequark/.local/bin/../share/yosys/ice40/arith_map.v:53"
+.param ASYNC_SR 1
 .param CARRY_ENABLE 1
 .param DFF_ENABLE 1
 .param LUT_INIT 0110100110010110
-.gate ICESTORM_LC I0=$false I1=$false I2=b$2 I3=$auto$alumacc.cc:474:replace_alu$4.C[19] CIN=$auto$alumacc.cc:474:replace_alu$4.C[19] CLK=clk$2 CEN=$true SR=$false LO= O=b$2 COUT=$auto$alumacc.cc:474:replace_alu$4.C[20]
-.attr src "blinky.v:4|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:2|blinky.v:5|/home/whitequark/.local/bin/../share/yosys/ice40/arith_map.v:53"
+.gate ICESTORM_LC I0=$false I1=$false I2=div1[14] I3=$auto$alumacc.cc:474:replace_alu$11.C[14] CIN=$auto$alumacc.cc:474:replace_alu$11.C[14] CLK=clk$2 CEN=$true SR=$abc$299$n1 LO= O=div1[14] COUT=$auto$alumacc.cc:474:replace_alu$11.C[15]
+.attr src "blinky.v:4|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:12|blinky.v:8|/home/whitequark/.local/bin/../share/yosys/ice40/arith_map.v:53"
+.param ASYNC_SR 1
 .param CARRY_ENABLE 1
 .param DFF_ENABLE 1
 .param LUT_INIT 0110100110010110
-.gate ICESTORM_LC I0=$false I1=$false I2=a$2 I3=$auto$alumacc.cc:474:replace_alu$4.C[20] CIN= CLK=clk$2 CEN=$true SR=$false LO= O=a$2 COUT=
-.attr src "blinky.v:4|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:2|blinky.v:5|/home/whitequark/.local/bin/../share/yosys/ice40/arith_map.v:53"
+.gate ICESTORM_LC I0=$false I1=$false I2=div1[15] I3=$auto$alumacc.cc:474:replace_alu$11.C[15] CIN=$auto$alumacc.cc:474:replace_alu$11.C[15] CLK=clk$2 CEN=$true SR=$abc$299$n1 LO= O=div1[15] COUT=$auto$alumacc.cc:474:replace_alu$11.C[16]
+.attr src "blinky.v:4|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:12|blinky.v:8|/home/whitequark/.local/bin/../share/yosys/ice40/arith_map.v:53"
+.param ASYNC_SR 1
+.param CARRY_ENABLE 1
 .param DFF_ENABLE 1
 .param LUT_INIT 0110100110010110
-.gate ICESTORM_LC I0=$false I1=div[0] I2=$false I3=$false CIN=$true CLK= CEN= SR= LO= O= COUT=div[0]$2
+.gate ICESTORM_LC I0=$false I1=$false I2=div1[16] I3=$auto$alumacc.cc:474:replace_alu$11.C[16] CIN=$auto$alumacc.cc:474:replace_alu$11.C[16] CLK=clk$2 CEN=$true SR=$abc$299$n1 LO= O=div1[16] COUT=$auto$alumacc.cc:474:replace_alu$11.C[17]
+.attr src "blinky.v:4|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:12|blinky.v:8|/home/whitequark/.local/bin/../share/yosys/ice40/arith_map.v:53"
+.param ASYNC_SR 1
 .param CARRY_ENABLE 1
-.gate ICESTORM_LC I0= I1=$false I2=div[1] I3= CIN=div[0]$2 CLK= CEN= SR= LO= O= COUT=$auto$alumacc.cc:474:replace_alu$4.C[2]
+.param DFF_ENABLE 1
+.param LUT_INIT 0110100110010110
+.gate ICESTORM_LC I0=$false I1=$false I2=div1[17] I3=$auto$alumacc.cc:474:replace_alu$11.C[17] CIN=$auto$alumacc.cc:474:replace_alu$11.C[17] CLK=clk$2 CEN=$true SR=$abc$299$n1 LO= O=div1[17] COUT=$auto$alumacc.cc:474:replace_alu$11.C[18]
+.attr src "blinky.v:4|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:12|blinky.v:8|/home/whitequark/.local/bin/../share/yosys/ice40/arith_map.v:53"
+.param ASYNC_SR 1
+.param CARRY_ENABLE 1
+.param DFF_ENABLE 1
+.param LUT_INIT 0110100110010110
+.gate ICESTORM_LC I0=$false I1=$false I2=div1[18] I3=$auto$alumacc.cc:474:replace_alu$11.C[18] CIN=$auto$alumacc.cc:474:replace_alu$11.C[18] CLK=clk$2 CEN=$true SR=$abc$299$n1 LO= O=div1[18] COUT=$auto$alumacc.cc:474:replace_alu$11.C[19]
+.attr src "blinky.v:4|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:12|blinky.v:8|/home/whitequark/.local/bin/../share/yosys/ice40/arith_map.v:53"
+.param ASYNC_SR 1
+.param CARRY_ENABLE 1
+.param DFF_ENABLE 1
+.param LUT_INIT 0110100110010110
+.gate ICESTORM_LC I0=$false I1=$false I2=b$2 I3=$auto$alumacc.cc:474:replace_alu$11.C[19] CIN=$auto$alumacc.cc:474:replace_alu$11.C[19] CLK=clk$2 CEN=$true SR=$abc$299$n1 LO= O=b$2 COUT=$auto$alumacc.cc:474:replace_alu$11.C[20]
+.attr src "blinky.v:4|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:12|blinky.v:8|/home/whitequark/.local/bin/../share/yosys/ice40/arith_map.v:53"
+.param ASYNC_SR 1
+.param CARRY_ENABLE 1
+.param DFF_ENABLE 1
+.param LUT_INIT 0110100110010110
+.gate ICESTORM_LC I0=$false I1=$false I2=a$2 I3=$auto$alumacc.cc:474:replace_alu$11.C[20] CIN= CLK=clk$2 CEN=$true SR=$abc$299$n1 LO= O=a$2 COUT=
+.attr src "blinky.v:4|/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:12|blinky.v:8|/home/whitequark/.local/bin/../share/yosys/ice40/arith_map.v:53"
+.param ASYNC_SR 1
+.param DFF_ENABLE 1
+.param LUT_INIT 0110100110010110
+.gate ICESTORM_LC I0=rst$2 I1=$false I2=$false I3=$false CIN= CLK= CEN= SR= LO= O=$abc$299$n1 COUT=
+.attr src "/home/whitequark/.local/bin/../share/yosys/ice40/cells_map.v:40"
+.param LUT_INIT 01
+.gate ICESTORM_LC I0=$false I1=div1[0] I2=$false I3=$false CIN=$true CLK= CEN= SR= LO= O= COUT=div1[0]$2
+.param CARRY_ENABLE 1
+.gate ICESTORM_LC I0= I1=$false I2=div1[1] I3= CIN=div1[0]$2 CLK= CEN= SR= LO= O= COUT=$auto$alumacc.cc:474:replace_alu$11.C[2]
+.param CARRY_ENABLE 1
+.gate ICESTORM_LC I0=$false I1=div2[0] I2=$false I3=$false CIN=$true CLK= CEN= SR= LO= O= COUT=div2[0]$2
+.param CARRY_ENABLE 1
+.gate ICESTORM_LC I0= I1=$false I2=div2[1] I3= CIN=div2[0]$2 CLK= CEN= SR= LO= O= COUT=$auto$alumacc.cc:474:replace_alu$8.C[2]
 .param CARRY_ENABLE 1
 .end

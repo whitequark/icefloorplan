@@ -6,6 +6,7 @@
 #include <QFont>
 #include "chipdb.h"
 
+class QGraphicsItem;
 class QGraphicsPathItem;
 
 class CircuitBuilder
@@ -15,7 +16,7 @@ public:
         Up, Right, Down, Left
     };
 
-    CircuitBuilder();
+    CircuitBuilder(QGraphicsItem *parent);
 
     void setGrid(qreal grid);
     void setColor(const QColor &color);
@@ -26,13 +27,20 @@ public:
     QPointF moveTo(QPointF p);
     QPointF segmentTo(qreal x, qreal y);
     QPointF segmentTo(QPointF p);
+    QPointF junctionAt(qreal x, qreal y);
+    QPointF junctionAt(QPointF p);
     QPointF junctionTo(qreal x, qreal y);
     QPointF junctionTo(QPointF p);
+    void junction(bool condition = true);
+    QPointF joinTo(qreal x, qreal y, bool junction);
+    QPointF joinTo(QPointF p, bool junction);
 
     void addBlock(qreal x, qreal y, qreal w, qreal h);
     void addMux(Direction dir, qreal x, qreal y, qreal w, qreal h = 1);
+    void addBuffer(Direction dir, qreal x, qreal y);
 
-    QPointF addPin(Direction dir, qreal x, qreal y, const QString &name = "");
+    QPointF addPin(Direction dir, qreal x, qreal y, const QString &name = "",
+                   bool activeLow = false);
     void addClockSymbol(Direction dir, qreal x, qreal y);
     void addLabel(Direction anchor, qreal x, qreal y, const QString &text);
 
@@ -43,6 +51,7 @@ private:
     QPointF _origin;
     QPen _pen;
     QFont _font;
+    QGraphicsItem *_parent;
     QPainterPath _path, _textPath;
 
     static void directionToVectors(Direction dir, QPointF *h, QPointF *v);

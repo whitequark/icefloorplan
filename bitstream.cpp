@@ -71,7 +71,7 @@ bool Bitstream::parse(QIODevice *in, std::function<void(int,int)> progress)
     return parser.isOk();
 }
 
-uint Bitstream::Tile::extract(const QVector<nbit_t> &nbits)
+uint Bitstream::Tile::extract(const QVector<nbit_t> &nbits) const
 {
     uint result = 0;
     for(nbit_t nbit : nbits) {
@@ -83,7 +83,8 @@ uint Bitstream::Tile::extract(const QVector<nbit_t> &nbits)
 
 bool Bitstream::process(ChipDB &chip)
 {
-    netDrivers.resize(chip.nets.length());
+    netDrivers.fill(-1, chip.nets.length());
+    netLoaded.resize(chip.nets.length());
 
     for(Tile &tile : tiles) {
         if(!chip.tiles.contains(qMakePair(tile.x, tile.y))) {
@@ -105,14 +106,16 @@ bool Bitstream::process(ChipDB &chip)
         ChipDB::Tile &chipTile = chip.tile(tile.x, tile.y);
         for(ChipDB::Connection &buffer : chipTile.buffers) {
             uint config = tile.extract(buffer.bits);
-            if(buffer.srcNets[config] != (net_t)-1) {
+            net_t srcNet = buffer.srcNets[config];
+            if(srcNet != (net_t)-1) {
                 if(netDrivers[buffer.dstNet] != (net_t)-1) {
                     qCritical() << "net" << buffer.dstNet << "is driven by net"
                                 << netDrivers[buffer.dstNet] << "and"
-                                << buffer.srcNets[config];
+                                << srcNet;
                     return false;
                 }
-                netDrivers[buffer.dstNet] = buffer.srcNets[config];
+                netDrivers[buffer.dstNet] = srcNet;
+                netLoaded.setBit(srcNet);
             }
         }
     }

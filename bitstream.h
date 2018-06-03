@@ -17,7 +17,7 @@ public:
         QString type;
         QBitArray bits;
 
-        uint extract(const QVector<nbit_t> &nbits);
+        uint extract(const QVector<nbit_t> &nbits) const;
     };
 
     Bitstream();
@@ -33,6 +33,7 @@ public:
 
     QMap<QPair<Tile *, QString>, net_t> tileNets;
     QVector<net_t> netDrivers;
+    QBitArray netLoaded;
 };
 
 Q_DECLARE_METATYPE(Bitstream)

@@ -34,11 +34,19 @@
     <property name="title">
      <string>&amp;File</string>
     </property>
+    <addaction name="actionOpenExample"/>
     <addaction name="actionOpen"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>&amp;View</string>
+    </property>
+    <addaction name="actionShowUnusedLogic"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuView"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionOpen">
@@ -62,6 +70,19 @@
     <string>Ctrl+Q</string>
    </property>
   </action>
+  <action name="actionOpenExample">
+   <property name="text">
+    <string>Open &amp;Example</string>
+   </property>
+  </action>
+  <action name="actionShowUnusedLogic">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Unused &amp;Logic</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
@@ -69,6 +90,9 @@
    <class>FloorplanWidget</class>
    <extends>QGraphicsView</extends>
    <header>floorplanwidget.h</header>
+   <slots>
+    <slot>setShowUnusedLogic(bool)</slot>
+   </slots>
   </customwidget>
  </customwidgets>
  <resources/>
@@ -105,8 +129,41 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionOpenExample</sender>
+   <signal>triggered()</signal>
+   <receiver>FloorplanWindow</receiver>
+   <slot>openExample()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>199</x>
+     <y>149</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionShowUnusedLogic</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>floorplan</receiver>
+   <slot>setShowUnusedLogic(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>199</x>
+     <y>149</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>openFile()</slot>
+  <slot>openExample()</slot>
  </slots>
 </ui>
