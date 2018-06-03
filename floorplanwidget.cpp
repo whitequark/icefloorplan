@@ -367,7 +367,8 @@ void FloorplanWidget::buildLogicTile(const Bitstream::Tile &tile, QGraphicsRectI
                 carryI1 = builder.addPin(CircuitBuilder::Down, 1, 0);
             if(d_lutff_in1 != -1)
                 carryI2 = builder.addPin(CircuitBuilder::Down, 2, 0);
-            carryO      = builder.addPin(CircuitBuilder::Up,   1, 0);
+            if(cfgCarry)
+                carryO  = builder.addPin(CircuitBuilder::Up,   1, 0);
         }
         builder.build(lutff + "/carry");
         // lutff_N (look-up table)
@@ -515,7 +516,7 @@ void FloorplanWidget::buildLogicTile(const Bitstream::Tile &tile, QGraphicsRectI
             }
             builder.build(lutff_cin, n_lutff_cin);
         }
-        hasCarryIn = hasCarry;
+        hasCarryIn = cfgCarry;
         carryIn = carryO;
     }
 
