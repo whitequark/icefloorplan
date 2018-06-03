@@ -114,7 +114,7 @@ bool ChipDB::parse(QIODevice *in, std::function<void(int, int)> progress)
                 tile_bits.functions[func] = bits;
             }
 
-            tiles_bits[tile_bits.type] = tile_bits;
+            tilesBits[tile_bits.type] = tile_bits;
         } else if(command == "extra_cell") {
             // not implemented
             parser.skipToCommand();
@@ -127,7 +127,7 @@ bool ChipDB::parse(QIODevice *in, std::function<void(int, int)> progress)
             parser.parseEol();
 
             while(parser.isOk() && !parser.atCommand()) {
-                NetEntry entry;
+                TileNet entry;
                 entry.tile_x = parser.parseDecimal();
                 entry.tile_y = parser.parseDecimal();
                 entry.name   = parser.parseName();
@@ -246,7 +246,7 @@ bool ChipDB::parse(QIODevice *in, std::function<void(int, int)> progress)
             Connection conn;
             coord_t tile_x = parser.parseDecimal();
             coord_t tile_y = parser.parseDecimal();
-            nbit_t columns = tiles_bits[tile(tile_x, tile_y).type].columns;
+            nbit_t columns = tilesBits[tile(tile_x, tile_y).type].columns;
             conn.dst_net_num = parser.parseDecimal();
             while(parser.isOk() && !parser.atEol()) {
                 nbit_t bit = parseBitdef(parser.parseName(), columns);

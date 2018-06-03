@@ -4,6 +4,7 @@
 #include <QGraphicsSimpleTextItem>
 #include "floorplanwidget.h"
 #include "chipdb.h"
+#include "bitstream.h"
 
 const float tileEdge   = 0.42;
 const float wireSpc    = 0.0102;
@@ -27,7 +28,7 @@ static QColor tileColor(const QString &type, bool active)
 }
 
 FloorplanWidget::FloorplanWidget(QWidget *parent)
-    : QGraphicsView(parent), _chip(nullptr)
+    : QGraphicsView(parent), _bitstream(nullptr), _chip(nullptr)
 {
     setViewport(new QOpenGLWidget);
     setScene(&_scene);
@@ -36,8 +37,9 @@ FloorplanWidget::FloorplanWidget(QWidget *parent)
     _scene.setBackgroundBrush(Qt::white);
 }
 
-void FloorplanWidget::setChip(ChipDB *chip)
+void FloorplanWidget::setData(Bitstream *bitstream, ChipDB *chip)
 {
+    _bitstream = bitstream;
     _chip = chip;
     makeTiles();
     resetZoom();

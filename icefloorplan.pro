@@ -13,16 +13,22 @@ SOURCES += \
     floorplanwindow.cpp \
     floorplanwidget.cpp \
     chipdb.cpp \
-    ascparser.cpp
+    ascparser.cpp \
+    bitstream.cpp \
+    chipdbloader.cpp \
+    bitstreamloader.cpp
 
 HEADERS += \
     floorplanwindow.h \
     floorplanwidget.h \
     chipdb.h \
-    ascparser.h
+    ascparser.h \
+    bitstream.h \
+    chipdbloader.h \
+    bitstreamloader.h
 
 FORMS += \
     floorplanwindow.ui
 
 RESOURCES += \
-    chipdb.qrc
+    builtins.qrc

@@ -15,12 +15,15 @@ public:
     bool atEol();
     void parseEol();
 
+    QString parseRest();
+
     bool atCommand();
     void skipToCommand();
     QString parseCommand();
 
     uint parseDecimal();
     uint parseBinary();
+
     QString parseName();
 
 private:

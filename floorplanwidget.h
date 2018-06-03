@@ -4,6 +4,7 @@
 #include <QGraphicsView>
 
 class ChipDB;
+class Bitstream;
 
 class FloorplanWidget : public QGraphicsView
 {
@@ -11,13 +12,14 @@ class FloorplanWidget : public QGraphicsView
 public:
     explicit FloorplanWidget(QWidget *parent = nullptr);
 
-    void setChip(ChipDB *chip);
+    void setData(Bitstream *bitstream, ChipDB *chip);
     void resetZoom();
 
 protected:
     void wheelEvent(QWheelEvent *event) override;
 
 private:
+    Bitstream *_bitstream;
     ChipDB *_chip;
     QGraphicsScene _scene;
 

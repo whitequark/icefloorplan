@@ -1,8 +1,0 @@
-<RCC>
-    <qresource prefix="/">
-        <file>chipdb-384.txt</file>
-        <file>chipdb-8k.txt</file>
-        <file>chipdb-5k.txt</file>
-        <file>chipdb-1k.txt</file>
-    </qresource>
-</RCC>

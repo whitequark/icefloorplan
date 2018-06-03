@@ -11,6 +11,7 @@ typedef int32_t  net_t;
 
 class ChipDB
 {
+public:
     struct Pin {
         QString name;
         coord_t tile_x;
@@ -44,7 +45,7 @@ class ChipDB
         QVector<Connection> routing;
     };
 
-    struct NetEntry {
+    struct TileNet {
         coord_t tile_x;
         coord_t tile_y;
         QString name;
@@ -53,10 +54,9 @@ class ChipDB
     struct Net {
         net_t num;
         QString kind;
-        QVector<NetEntry> entries;
+        QVector<TileNet> entries;
     };
 
-public:
     ChipDB();
     bool parse(QIODevice *in, std::function<void(int,int)> progress);
 
@@ -66,7 +66,7 @@ public:
     coord_t width;
     coord_t height;
     QMap<QString, Package> packages;
-    QMap<QString, TileBits> tiles_bits;
+    QMap<QString, TileBits> tilesBits;
     QMap<QPair<coord_t, coord_t>, Tile> tiles;
     QVector<Net> nets;
 
