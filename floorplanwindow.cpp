@@ -40,7 +40,7 @@ void FloorplanWindow::openExample()
 void FloorplanWindow::openFile()
 {
     QString fileName = QFileDialog::getOpenFileName(
-                this, "Open bitstream", "", "Bitstreams(*.txt, *.asc)");
+                this, "Open bitstream", "", "Bitstreams(*.txt *.asc)");
     if(!fileName.isNull()) {
         loadBitstream(fileName);
     }
