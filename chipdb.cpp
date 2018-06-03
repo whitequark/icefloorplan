@@ -53,7 +53,7 @@ bool ChipDB::parse(QIODevice *in, std::function<void(int, int)> progress)
             Q_ASSERT(this->name == "" || this->name == name);
             this->name = name;
 
-            nets .fill(Net { -1, "", {} }, num_nets);
+            nets .fill(Net { -1, {} }, num_nets);
             cout .fill(-1, 8 * width * height);
             lout .fill(-1, 7 * width * height);
             lcout.fill(-1, 8 * width * height);
@@ -143,111 +143,6 @@ bool ChipDB::parse(QIODevice *in, std::function<void(int, int)> progress)
                 entry.tileY = parser.parseDecimal();
                 entry.name   = parser.parseName();
                 parser.parseEol();
-
-                const QString &name = entry.name;
-                if(name.startsWith("sp12_h")) {
-                    net.kind = "sp12h";
-                } else if(name.startsWith("sp12_v")) {
-                    net.kind = "sp12v";
-                } else if(name.startsWith("sp4_h")) {
-                    net.kind = "sp4h";
-                } else if(name.startsWith("sp4_v")) {
-                    net.kind = "sp4v";
-                } else if(name.startsWith("fabout")) {
-                    net.kind = "fb";
-                } else if(name.startsWith("glb_netwk")) {
-                    net.kind = "glb";
-                } else if(name.startsWith("io_") && name.mid(4, 6) == "/D_IN_") {
-                    net.kind = "ioin";
-                    // Save for later the net number for IO IN pin.
-                    int pad = name.mid(3, 1).toInt();
-                    int pin = name.mid(10, 1).toInt();
-                    int idx = pin + 2 * pad + 4 * (entry.tileX + width * entry.tileY);
-                    ioin[idx] = net.num;
-                } else if(name.startsWith("io_0/D_OUT_0")) {
-                    net.kind = "ioou";
-                } else if(name.startsWith("io_0/D_OUT_1")) {
-                    net.kind = "ioou";
-                } else if(name.startsWith("io_1/D_OUT_0")) {
-                    net.kind = "ioou";
-                } else if(name.startsWith("io_1/D_OUT_1")) {
-                    net.kind = "ioou";
-                } else if(name.startsWith("io_0/OUT_ENB")) {
-                    net.kind = "ioou";
-                } else if(name.startsWith("io_1/OUT_ENB")) {
-                    net.kind = "ioou";
-                } else if(name.startsWith("io_global/cen")) {
-                    net.kind = "iocen";
-                } else if(name.startsWith("io_global/inclk")) {
-                    net.kind = "ioclki";
-                } else if(name.startsWith("io_global/outclk")) {
-                    net.kind = "ioclko";
-                } else if(name.startsWith("ram/RDATA_")) {
-                    net.kind = "rdat";
-                } else if(name.startsWith("ram/WDATA_")) {
-                    net.kind = "wdat";
-                } else if(name.startsWith("ram/RADDR_")) {
-                    net.kind = "radr";
-                } else if(name.startsWith("ram/WADDR_")) {
-                    net.kind = "wadr";
-                } else if(name.startsWith("ram/MASK_")) {
-                    net.kind = "mask";
-                } else if(entry.name == "ram/RCLK") {
-                    net.kind = "rclk";
-                } else if(entry.name == "ram/RCLKE") {
-                    net.kind = "rclke";
-                } else if(entry.name == "ram/RE") {
-                    net.kind = "we";
-                } else if(entry.name == "ram/WCLK") {
-                    net.kind = "wclk";
-                } else if(entry.name == "ram/WCLKE") {
-                    net.kind = "wclke";
-                } else if(entry.name == "ram/WE") {
-                    net.kind = "re";
-                } else if(name.startsWith("local_g")) {
-                    net.kind = "loc";
-                } else if(name.startsWith("glb2local")) {
-                    net.kind = "g2l";
-                } else if(name.startsWith("lutff_") && name.mid(7, 4) == "/in_") {
-                    net.kind = "lcin";   // Logic cell input
-                } else if(name.startsWith("lutff_") && name.endsWith("/out")) {
-                    net.kind = "lcout";   // Logic cell output
-                    // Save for later the net number for DFF out.
-                    int lut = name.mid(6, 1).toInt();
-                    int idx = lut + 8 * (entry.tileX + width * entry.tileY);
-                    lcout[idx] = net.num;
-                } else if(name.startsWith("lutff_") && name.endsWith("/lout")) {
-                    net.kind = "lout";   // Logic cell output pre-flipflop
-                    // Save for later the net number for LUT-out.
-                    int lut = name.mid(6, 1).toInt();
-                    if(lut >= 7) {
-                        qCritical() << "unexpected LUT 7 lout" << entry.name;
-                        return false;
-                    }
-                    int idx = lut + 7 * (entry.tileX + width * entry.tileY);
-                    lout[idx] = net.num;
-                } else if(name.startsWith("lutff_") && name.endsWith("/cout")) {
-                    net.kind = "cout";    // Carry output
-                    // Save for later the net number for carry-out.
-                    int lut = name.mid(6, 1).toInt();
-                    int idx = lut + 8 * (entry.tileX + width * entry.tileY);
-                    cout[idx] = net.num;
-                } else if(entry.name == "carry_in") {
-                    net.kind = "cin";
-                } else if(entry.name == "carry_in_mux") {
-                    net.kind = "cmuxin";
-                } else if(entry.name == "lutff_global/cen") {
-                    net.kind = "lcen";
-                } else if(entry.name == "lutff_global/clk") {
-                    net.kind = "lclk";
-                } else if(entry.name == "lutff_global/s_r") {
-                    net.kind = "lsr";
-                } else if(name.startsWith("span4_vert_b_") ||
-                           name.startsWith("span4_vert_t_") ||
-                           name.startsWith("span4_horz_l_") ||
-                           name.startsWith("span4_horz_r_")) {
-                    net.kind = "iosp4";
-                }
 
                 net.tileNets.append(entry);
             }

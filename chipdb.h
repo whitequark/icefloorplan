@@ -53,7 +53,6 @@ public:
 
     struct Net {
         net_t num;
-        QString kind;
         QVector<TileNet> tileNets;
     };
 

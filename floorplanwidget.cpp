@@ -229,6 +229,8 @@ QString FloorplanWidget::recognizeFunction(uint fullLutData,
         return describe("",  "⊕", "=1");
     } else if(inputs == 2 && lutData == 0b1001) { // XNOR
         return describe("~", "⊕", "=1");
+    } else if(inputs == 3 && lutData == 0b10010110) { // full adder
+        return describe("∑", "",  "");
     } else if(lutData == (1 << (inputBits - 1))) { // AND
         return describe("",  "·",  "&");
     } else if(lutData == ((1 << (inputBits - 1)) ^ inputMask)) { // NAND
@@ -358,7 +360,7 @@ void FloorplanWidget::buildLogicTile(const Bitstream::Tile &tile, QGraphicsRectI
         builder.setOrigin(1, lcOff - 1.5);
         if(hasCarry) {
             builder.addMux(CircuitBuilder::Up, 1.5, 0, 3);
-            builder.addLabel(CircuitBuilder::Up, 1, 0, "+₁");
+            builder.addLabel(CircuitBuilder::Up, 1, 0, "∑₁");
             if(d_lutff_in2 != -1)
                 carryI0 = builder.addPin(CircuitBuilder::Down, 0, 0);
             if(hasCarryIn)
