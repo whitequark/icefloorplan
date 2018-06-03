@@ -4,6 +4,7 @@
 #include <QString>
 #include <QBitArray>
 #include <QMap>
+#include <QSet>
 #include <QIODevice>
 #include "chipdb.h"
 
@@ -15,11 +16,13 @@ public:
         coord_t y;
         QString type;
         QBitArray bits;
+
+        uint extract(const QVector<nbit_t> &nbits);
     };
 
     Bitstream();
     bool parse(QIODevice *in, std::function<void(int,int)> progress);
-    bool validate(ChipDB &chip);
+    bool process(ChipDB &chip);
 
     Tile &tile(coord_t x, coord_t y);
 
@@ -27,6 +30,9 @@ public:
     QString device;
     QMap<QPair<coord_t, coord_t>, Tile> tiles;
     QMap<net_t, QString> symbols;
+
+    QMap<QPair<Tile *, QString>, net_t> tileNets;
+    QVector<net_t> netDrivers;
 };
 
 Q_DECLARE_METATYPE(Bitstream)

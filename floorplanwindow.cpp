@@ -89,7 +89,7 @@ void FloorplanWindow::loadChipDB(QString device)
 void FloorplanWindow::updateFloorplan()
 {
     _progressBar.hide();
-    if(_bitstream.validate(_chipDBCache[_bitstream.device])) {
+    if(_bitstream.process(_chipDBCache[_bitstream.device])) {
         _ui->statusBar->showMessage("Ready.");
         _ui->floorplan->setData(&_bitstream, &_chipDBCache[_bitstream.device]);
     } else {

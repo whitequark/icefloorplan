@@ -12,6 +12,11 @@ ChipDB::Tile &ChipDB::tile(coord_t x, coord_t y)
     return tiles[qMakePair(x, y)];
 }
 
+net_t ChipDB::tileNet(coord_t x, coord_t y, const QString &name)
+{
+    return tilesNets[qMakePair(x, y)][name];
+}
+
 static nbit_t parseBitdef(QString bitdef, nbit_t columns)
 {
     static const QRegularExpression re("^B([0-9]+)\\[([0-9]+)\\]$");
@@ -55,8 +60,8 @@ bool ChipDB::parse(QIODevice *in, std::function<void(int, int)> progress)
             while(parser.isOk() && !parser.atCommand()) {
                 Pin pin;
                 pin.name   = parser.parseName();
-                pin.tile_x = parser.parseDecimal();
-                pin.tile_y = parser.parseDecimal();
+                pin.tileX = parser.parseDecimal();
+                pin.tileY = parser.parseDecimal();
                 pin.net    = parser.parseDecimal();
                 parser.parseEol();
 
@@ -128,8 +133,8 @@ bool ChipDB::parse(QIODevice *in, std::function<void(int, int)> progress)
 
             while(parser.isOk() && !parser.atCommand()) {
                 TileNet entry;
-                entry.tile_x = parser.parseDecimal();
-                entry.tile_y = parser.parseDecimal();
+                entry.tileX = parser.parseDecimal();
+                entry.tileY = parser.parseDecimal();
                 entry.name   = parser.parseName();
                 parser.parseEol();
 
@@ -151,7 +156,7 @@ bool ChipDB::parse(QIODevice *in, std::function<void(int, int)> progress)
                     // Save for later the net number for IO IN pin.
                     int pad = name.mid(3, 1).toInt();
                     int pin = name.mid(10, 1).toInt();
-                    int idx = pin + 2 * pad + 4 * (entry.tile_x + width * entry.tile_y);
+                    int idx = pin + 2 * pad + 4 * (entry.tileX + width * entry.tileY);
                     ioin[idx] = net.num;
                 } else if(name.startsWith("io_0/D_OUT_0")) {
                     net.kind = "ioou";
@@ -203,7 +208,7 @@ bool ChipDB::parse(QIODevice *in, std::function<void(int, int)> progress)
                     net.kind = "lcout";   // Logic cell output
                     // Save for later the net number for DFF out.
                     int lut = name.mid(6, 1).toInt();
-                    int idx = lut + 8 * (entry.tile_x + width * entry.tile_y);
+                    int idx = lut + 8 * (entry.tileX + width * entry.tileY);
                     lcout[idx] = net.num;
                 } else if(name.startsWith("lutff_") && name.endsWith("/lout")) {
                     net.kind = "lout";   // Logic cell output pre-flipflop
@@ -213,13 +218,13 @@ bool ChipDB::parse(QIODevice *in, std::function<void(int, int)> progress)
                         qCritical() << "unexpected LUT 7 lout" << entry.name;
                         return false;
                     }
-                    int idx = lut + 7 * (entry.tile_x + width * entry.tile_y);
+                    int idx = lut + 7 * (entry.tileX + width * entry.tileY);
                     lout[idx] = net.num;
                 } else if(name.startsWith("lutff_") && name.endsWith("/cout")) {
                     net.kind = "cout";    // Carry output
                     // Save for later the net number for carry-out.
                     int lut = name.mid(6, 1).toInt();
-                    int idx = lut + 8 * (entry.tile_x + width * entry.tile_y);
+                    int idx = lut + 8 * (entry.tileX + width * entry.tileY);
                     cout[idx] = net.num;
                 } else if(entry.name == "carry_in") {
                     net.kind = "cin";
@@ -238,7 +243,7 @@ bool ChipDB::parse(QIODevice *in, std::function<void(int, int)> progress)
                     net.kind = "iosp4";
                 }
 
-                net.entries.append(entry);
+                net.tileNets.append(entry);
             }
 
             nets[net.num] = net;
@@ -247,18 +252,18 @@ bool ChipDB::parse(QIODevice *in, std::function<void(int, int)> progress)
             coord_t tile_x = parser.parseDecimal();
             coord_t tile_y = parser.parseDecimal();
             nbit_t columns = tilesBits[tile(tile_x, tile_y).type].columns;
-            conn.dst_net_num = parser.parseDecimal();
+            conn.dstNet = parser.parseDecimal();
             while(parser.isOk() && !parser.atEol()) {
                 nbit_t bit = parseBitdef(parser.parseName(), columns);
                 if(bit == (nbit_t)-1) return false;
                 conn.bits.append(bit);
             }
-            conn.src_net_nums.fill(-1, 1 << conn.bits.length());
+            conn.srcNets.fill(-1, 1 << conn.bits.length());
             parser.parseEol();
 
             while(parser.isOk() && !parser.atCommand()) {
                 int config = parser.parseBinary();
-                conn.src_net_nums[config] = parser.parseDecimal();
+                conn.srcNets[config] = parser.parseDecimal();
                 parser.parseEol();
             }
 
@@ -270,6 +275,13 @@ bool ChipDB::parse(QIODevice *in, std::function<void(int, int)> progress)
         } else {
             qCritical() << "unexpected command" << "." + command;
             return false;
+        }
+    }
+
+    for(Net &net : nets) {
+        for(TileNet &tileNet : net.tileNets) {
+            auto coord = qMakePair(tileNet.tileX, tileNet.tileY);
+            tilesNets[coord][tileNet.name] = net.num;
         }
     }
 

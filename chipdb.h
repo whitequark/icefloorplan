@@ -14,8 +14,8 @@ class ChipDB
 public:
     struct Pin {
         QString name;
-        coord_t tile_x;
-        coord_t tile_y;
+        coord_t tileX;
+        coord_t tileY;
         net_t net;
     };
 
@@ -32,8 +32,8 @@ public:
     };
 
     struct Connection {
-        net_t dst_net_num;
-        QVector<net_t> src_net_nums;
+        net_t dstNet;
+        QVector<net_t> srcNets;
         QVector<nbit_t> bits;
     };
 
@@ -46,21 +46,22 @@ public:
     };
 
     struct TileNet {
-        coord_t tile_x;
-        coord_t tile_y;
+        coord_t tileX;
+        coord_t tileY;
         QString name;
     };
 
     struct Net {
         net_t num;
         QString kind;
-        QVector<TileNet> entries;
+        QVector<TileNet> tileNets;
     };
 
     ChipDB();
     bool parse(QIODevice *in, std::function<void(int,int)> progress);
 
     Tile &tile(coord_t x, coord_t y);
+    net_t tileNet(coord_t x, coord_t y, const QString &name);
 
     QString name;
     coord_t width;
@@ -69,6 +70,8 @@ public:
     QMap<QString, TileBits> tilesBits;
     QMap<QPair<coord_t, coord_t>, Tile> tiles;
     QVector<Net> nets;
+
+    QMap<QPair<coord_t, coord_t>, QMap<QString, net_t>> tilesNets;
 
     // do we need these?
     QVector<net_t> cout;
