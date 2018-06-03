@@ -29,7 +29,9 @@ private:
     QGraphicsPathItem *_hovered;
     QPen _hoveredOldPen;
 
-    void makeTiles();
+    void buildTile(coord_t x, coord_t y);
+    void buildLogicTile(coord_t x, coord_t y);
+//    void makeTiles();
 };
 
 #endif // FLOORPLANWIDGET_H

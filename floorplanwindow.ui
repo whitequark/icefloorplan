@@ -15,7 +15,7 @@
   </property>
   <widget class="FloorplanWidget" name="floorplan">
    <property name="renderHints">
-    <set>QPainter::TextAntialiasing</set>
+    <set>QPainter::Antialiasing|QPainter::TextAntialiasing</set>
    </property>
    <property name="dragMode">
     <enum>QGraphicsView::ScrollHandDrag</enum>

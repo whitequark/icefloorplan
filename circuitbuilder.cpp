@@ -157,16 +157,21 @@ void CircuitBuilder::addLabel(CircuitBuilder::Direction anchor, qreal x, qreal y
                               const QString &text)
 {
     QFontMetrics metrics(_font);
-    QRect bounds = metrics.boundingRect(text);
+    QRect bounds;
+    if(anchor == Left || anchor == Right) {
+        bounds = metrics.boundingRect(text);
+    } else {
+        bounds = metrics.tightBoundingRect(text);
+    }
 
     QPainterPath labelPath;
     labelPath.addText(-bounds.width() / 2, metrics.ascent() / 2, _font, text);
-    if(anchor == Right) {
-        labelPath.translate((x + 0.8) * _grid - bounds.width() / 2, (y + 0.45) * _grid);
-    } else if(anchor == Left) {
-        labelPath.translate((x + 0.2) * _grid + bounds.width() / 2, (y + 0.45) * _grid);
+    if(anchor == Left) {
+        labelPath.translate((x + 0.2) * _grid + bounds.width() / 2, (y + 0.5) * _grid);
+    } else if(anchor == Right) {
+        labelPath.translate((x + 0.8) * _grid - bounds.width() / 2, (y + 0.5) * _grid);
     } else {
-        labelPath.translate((x + 0.5) * _grid, (y + 0.45) * _grid);
+        labelPath.translate((x + 0.5) * _grid, (y + 0.5) * _grid);
     }
-    _textPath.addPath(labelPath.translated(_origin * _grid));
+    _textPath.addPath(labelPath.translated(QPointF(-1, -1) + _origin * _grid));
 }
