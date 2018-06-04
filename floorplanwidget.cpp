@@ -411,7 +411,7 @@ void FloorplanWidget::buildLogicTile(const Bitstream::Tile &tile, QGraphicsRectI
         // lutff_N (look-up table)
         QPointF lutI0, lutI1, lutI2, lutI3, lutO;
         builder.setOrigin(5, lcOff);
-        if(hasLUT && inputs == 0 && !_showUnusedLogic) {
+        if(hasLUT && inputs == 0 && !_showUnusedLogic && _lutNotation != RawLUTs) {
             builder.addBuffer(CircuitBuilder::Right, 3, 0);
             builder.addLabel(CircuitBuilder::Left, 3, 0, (lutData & 1) ? "1" : "0");
             lutO = builder.addPin(CircuitBuilder::Right, 3, 0);
