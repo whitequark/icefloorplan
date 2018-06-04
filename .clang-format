@@ -18,7 +18,7 @@ AllowShortIfStatementsOnASingleLine: true
 AllowShortFunctionsOnASingleLine: false
 AlignConsecutiveAssignments: true
 IncludeCategories:
-  - Regex:           '^<Qt'
+  - Regex:           '^<QtDebug>'
     Priority:        -2
   - Regex:           '^<Q'
     Priority:        -1

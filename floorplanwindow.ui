@@ -20,6 +20,12 @@
    <property name="dragMode">
     <enum>QGraphicsView::ScrollHandDrag</enum>
    </property>
+   <property name="transformationAnchor">
+    <enum>QGraphicsView::AnchorUnderMouse</enum>
+   </property>
+   <property name="resizeAnchor">
+    <enum>QGraphicsView::AnchorViewCenter</enum>
+   </property>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">

@@ -30,10 +30,10 @@ signals:
     void netHovered(net_t net, QString name, QString symbol);
 
 protected:
-    bool event(QEvent *event) override;
+    bool viewportEvent(QEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
-    virtual void gestureEvent(QGestureEvent *event);
+    virtual bool gestureEvent(QGestureEvent *event);
 
 private:
     bool _useOpenGL;
@@ -45,6 +45,8 @@ private:
     QGraphicsScene _scene;
     QGraphicsPathItem *_hovered;
     QPen _hoveredOldPen;
+
+    bool _suppressDrag;
 
     void clear();
     void buildTiles();

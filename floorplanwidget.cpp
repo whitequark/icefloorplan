@@ -1,9 +1,10 @@
-#include <QTouchEvent>
 #include <QtDebug>
+#include <QApplication>
 #include <QGraphicsPathItem>
 #include <QMouseEvent>
 #include <QOpenGLWidget>
 #include <QPinchGesture>
+#include <QTouchEvent>
 #include <QWheelEvent>
 #include "floorplanwidget.h"
 #include "bitstream.h"
@@ -27,7 +28,6 @@ FloorplanWidget::FloorplanWidget(QWidget *parent)
     setUseOpenGL(_useOpenGL);
     setScene(&_scene);
     _scene.setBackgroundBrush(Qt::white);
-    grabGesture(Qt::PinchGesture);
 }
 
 void FloorplanWidget::clear()
@@ -93,24 +93,33 @@ void FloorplanWidget::mouseMoveEvent(QMouseEvent *event)
     QGraphicsView::mouseMoveEvent(event);
 }
 
-void FloorplanWidget::gestureEvent(QGestureEvent *event)
+bool FloorplanWidget::gestureEvent(QGestureEvent *event)
 {
     if(auto pinch = static_cast<QPinchGesture *>(event->gesture(Qt::PinchGesture))) {
         if(pinch->changeFlags() & QPinchGesture::ScaleFactorChanged) {
             auto s = pinch->scaleFactor();
             scale(s, s);
-            event->accept();
+            return true;
         }
     }
+
+    return false;
 }
 
-bool FloorplanWidget::event(QEvent *event)
+bool FloorplanWidget::viewportEvent(QEvent *event)
 {
     if(event->type() == QEvent::Gesture) {
-        gestureEvent(static_cast<QGestureEvent *>(event));
+        return gestureEvent(static_cast<QGestureEvent *>(event));
+    } else {
+        if(event->type() == QEvent::TouchEnd) {
+            QTouchEvent *touch = static_cast<QTouchEvent *>(event);
+            QPointF pos        = touch->touchPoints()[0].lastPos();
+            QMouseEvent releaseEvent(QEvent::MouseButtonRelease, pos, Qt::LeftButton,
+                                     Qt::LeftButton, touch->modifiers());
+            QApplication::sendEvent(viewport(), &releaseEvent);
+        }
+        return QGraphicsView::viewportEvent(event);
     }
-
-    return QGraphicsView::event(event);
 }
 
 void FloorplanWidget::setUseOpenGL(bool on)
@@ -118,6 +127,7 @@ void FloorplanWidget::setUseOpenGL(bool on)
     _useOpenGL = on;
     setViewport(_useOpenGL ? new QOpenGLWidget : new QWidget);
     viewport()->setMouseTracking(true);
+    viewport()->grabGesture(Qt::PinchGesture);
 }
 
 void FloorplanWidget::useVerboseLogicNotation()
