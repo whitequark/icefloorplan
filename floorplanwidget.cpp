@@ -114,7 +114,7 @@ bool FloorplanWidget::event(QEvent *event) {
         }
     }
 
-    return QWidget::event(event);
+    return QGraphicsView::event(event);
 }
 
 void FloorplanWidget::setUseOpenGL(bool on)
