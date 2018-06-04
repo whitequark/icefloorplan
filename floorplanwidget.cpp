@@ -48,6 +48,8 @@ void FloorplanWidget::wheelEvent(QWheelEvent *event)
         float s = 1 + event->angleDelta().y() / 1200.0;
         scale(s, s);
         event->accept();
+    } else {
+        QGraphicsView::wheelEvent(event);
     }
 }
 
