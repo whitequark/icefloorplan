@@ -1,16 +1,16 @@
-#include <QtDebug>
-#include <QOpenGLWidget>
-#include <QGraphicsPathItem>
-#include <QWheelEvent>
-#include <QMouseEvent>
 #include <QTouchEvent>
+#include <QtDebug>
+#include <QGraphicsPathItem>
+#include <QMouseEvent>
+#include <QOpenGLWidget>
 #include <QPinchGesture>
-#include "chipdb.h"
-#include "bitstream.h"
-#include "circuitbuilder.h"
+#include <QWheelEvent>
 #include "floorplanwidget.h"
+#include "bitstream.h"
+#include "chipdb.h"
+#include "circuitbuilder.h"
 
-static const qreal  GRID = 20;
+static const qreal GRID = 20;
 
 static const QColor BLOCK_COLOR = Qt::darkRed;
 static const QColor NET_COLOR   = Qt::darkGreen;
@@ -21,9 +21,8 @@ static const QColor TILE_LOGIC_COLOR    = QColor::fromRgb(0xFBEAFB);
 static const QColor TILE_RAM_COLOR      = QColor::fromRgb(0xFBFBEA);
 
 FloorplanWidget::FloorplanWidget(QWidget *parent)
-    : QGraphicsView(parent),
-      _useOpenGL(false), _lutNotation(FloorplanWidget::VerboseLUTs), _showUnusedLogic(false),
-      _bitstream(nullptr), _chip(nullptr), _hovered(nullptr)
+    : QGraphicsView(parent), _useOpenGL(false), _lutNotation(FloorplanWidget::VerboseLUTs),
+      _showUnusedLogic(false), _bitstream(nullptr), _chip(nullptr), _hovered(nullptr)
 {
     setUseOpenGL(_useOpenGL);
     setScene(&_scene);
@@ -39,8 +38,7 @@ void FloorplanWidget::clear()
 
 void FloorplanWidget::resetZoom()
 {
-    _scene.setSceneRect(_scene.itemsBoundingRect() +
-                        QMarginsF(GRID, GRID, GRID, GRID));
+    _scene.setSceneRect(_scene.itemsBoundingRect() + QMarginsF(GRID, GRID, GRID, GRID));
     fitInView(_scene.sceneRect(), Qt::KeepAspectRatio);
 }
 
@@ -93,11 +91,10 @@ void FloorplanWidget::mouseMoveEvent(QMouseEvent *event)
     QGraphicsView::mouseMoveEvent(event);
 }
 
-void FloorplanWidget::gestureEvent(QGestureEvent *event) {
-    if (auto pinch = static_cast<QPinchGesture *>
-                     (event->gesture(Qt::PinchGesture)))
-    {
-        if (pinch->changeFlags() & QPinchGesture::ScaleFactorChanged) {
+void FloorplanWidget::gestureEvent(QGestureEvent *event)
+{
+    if(auto pinch = static_cast<QPinchGesture *>(event->gesture(Qt::PinchGesture))) {
+        if(pinch->changeFlags() & QPinchGesture::ScaleFactorChanged) {
             auto s = pinch->scaleFactor();
             scale(s, s);
             event->accept();
@@ -105,10 +102,10 @@ void FloorplanWidget::gestureEvent(QGestureEvent *event) {
     }
 }
 
-bool FloorplanWidget::event(QEvent *event) {
-
-    if (event->type() == QEvent::Gesture) {
-        gestureEvent(static_cast<QGestureEvent*>(event));
+bool FloorplanWidget::event(QEvent *event)
+{
+    if(event->type() == QEvent::Gesture) {
+        gestureEvent(static_cast<QGestureEvent *>(event));
     }
 
     return QGraphicsView::event(event);
@@ -148,10 +145,10 @@ void FloorplanWidget::setShowUnusedLogic(bool on)
 void FloorplanWidget::setData(Bitstream *bitstream, ChipDB *chip)
 {
     _bitstream = bitstream;
-    _chip = chip;
+    _chip      = chip;
 
     buildTiles();
-//    buildTile(bitstream->tile(5, 4));
+    //    buildTile(bitstream->tile(5, 4));
 
     resetZoom();
 }
@@ -172,14 +169,12 @@ void FloorplanWidget::buildTile(const Bitstream::Tile &tile)
     const qreal HEIGHT = 75;
 
     QGraphicsRectItem *tileItem =
-            _scene.addRect(QRectF(QPointF(-8, -8) * GRID,
-                                  QSizeF(WIDTH - 16, HEIGHT - 16) * GRID),
-                           Qt::NoPen, Qt::NoBrush);
+        _scene.addRect(QRectF(QPointF(-8, -8) * GRID, QSizeF(WIDTH - 16, HEIGHT - 16) * GRID),
+                       Qt::NoPen, Qt::NoBrush);
     tileItem->setPos(QPointF(tile.x * WIDTH, (_chip->height - tile.y) * HEIGHT) * GRID);
 
-    QGraphicsSimpleTextItem *coordsItem =
-            _scene.addSimpleText(QString("%3 (%1 %2)").arg(tile.x).arg(tile.y).arg(tile.type),
-                                 QFont("sans", 18));
+    QGraphicsSimpleTextItem *coordsItem = _scene.addSimpleText(
+        QString("%3 (%1 %2)").arg(tile.x).arg(tile.y).arg(tile.type), QFont("sans", 18));
     coordsItem->setParentItem(tileItem);
     coordsItem->setPos(QPointF(-8, -10) * GRID);
 
@@ -187,30 +182,32 @@ void FloorplanWidget::buildTile(const Bitstream::Tile &tile)
         buildLogicTile(tile, tileItem);
     } else if(tile.type == "io") {
         buildIOTile(tile, tileItem);
-    } else if(tile.type == "ramb" ||
-              tile.type == "ramt") {
+    } else if(tile.type == "ramb" || tile.type == "ramt") {
         buildRAMTile(tile, tileItem);
     }
 }
 
-QString FloorplanWidget::recognizeFunction(uint fullLutData,
-                                           bool hasA, bool hasB, bool hasC, bool hasD,
-                                           bool describeInputs) const {
+QString FloorplanWidget::recognizeFunction(uint fullLutData, bool hasA, bool hasB, bool hasC,
+                                           bool hasD, bool describeInputs) const
+{
     uint lutData = 0;
     for(uint i = 0; i < 16; i++) {
-        uint si =  (i & (hasA << 0)) |
-                   (i & (hasB << 1)) |
-                   (i & (hasC << 2)) |
-                   (i & (hasD << 3));
-        uint di = ((i & (hasA << 0)) >> (0                    )) |
-                  ((i & (hasB << 1)) >> (!hasA                )) |
-                  ((i & (hasC << 2)) >> (!hasA + !hasB        )) |
-                  ((i & (hasD << 3)) >> (!hasA + !hasB + !hasC));
-        if(fullLutData & (1 << si))
-            lutData |= (1 << di);
+        uint si = 0;
+        si |= (i & (hasA << 0));
+        si |= (i & (hasB << 1));
+        si |= (i & (hasC << 2));
+        si |= (i & (hasD << 3));
+
+        uint di = 0;
+        di |= (i & (hasA << 0)) >> 0;
+        di |= (i & (hasB << 1)) >> (!hasA);
+        di |= (i & (hasC << 2)) >> (!hasA + !hasB);
+        di |= (i & (hasD << 3)) >> (!hasA + !hasB + !hasC);
+
+        if(fullLutData & (1 << si)) lutData |= (1 << di);
     }
 
-    uint inputs = hasA + hasB + hasC + hasD;
+    uint inputs    = hasA + hasB + hasC + hasD;
     uint inputBits = 1 << inputs;
     uint inputMask = (1 << inputBits) - 1;
 
@@ -222,19 +219,28 @@ QString FloorplanWidget::recognizeFunction(uint fullLutData,
         return lutDataAsc;
     };
 
-    auto describe = [=](const QString &prefix,
-                        const QString &oper,
-                        const QString &compact) {
+    auto describe = [=](const QString &prefix, const QString &oper, const QString &compact) {
         QString desc;
         if(_lutNotation == RawLUTs) {
             return describeRaw();
         } else if(_lutNotation == CompactLUTs) {
             return prefix + compact;
         } else if(describeInputs) {
-            if(hasA) {                                   desc += "A"; }
-            if(hasB) { if(!desc.isEmpty()) desc += oper; desc += "B"; }
-            if(hasC) { if(!desc.isEmpty()) desc += oper; desc += "C"; }
-            if(hasD) { if(!desc.isEmpty()) desc += oper; desc += "D"; }
+            if(hasA) {
+                desc += "A";
+            }
+            if(hasB) {
+                if(!desc.isEmpty()) desc += oper;
+                desc += "B";
+            }
+            if(hasC) {
+                if(!desc.isEmpty()) desc += oper;
+                desc += "C";
+            }
+            if(hasD) {
+                if(!desc.isEmpty()) desc += oper;
+                desc += "D";
+            }
             return prefix + desc;
         } else {
             return prefix + oper;
@@ -246,26 +252,26 @@ QString FloorplanWidget::recognizeFunction(uint fullLutData,
     } else if(lutData == inputMask) {
         return "1";
     } else if(inputs == 1 && lutData == 0b10) { // BUF
-        return describe("",  "",  "1");
+        return describe("", "", "1");
     } else if(inputs == 1 && lutData == 0b01) { // NOT
-        return describe("~", "",  "1");
+        return describe("~", "", "1");
     } else if(inputs == 2 && lutData == 0b0110) { // XOR
-        return describe("",  "⊕", "=1");
+        return describe("", "⊕", "=1");
     } else if(inputs == 2 && lutData == 0b1001) { // XNOR
         return describe("~", "⊕", "=1");
     } else if(inputs == 3 && lutData == 0b10010110) { // full adder
-        return describe("∑", "",  "");
+        return describe("∑", "", "");
     } else if(lutData == (1 << (inputBits - 1))) { // AND
-        return describe("",  "·",  "&");
+        return describe("", "·", "&");
     } else if(lutData == ((1 << (inputBits - 1)) ^ inputMask)) { // NAND
-        return describe("~", "·",  "&");
+        return describe("~", "·", "&");
     } else if(lutData == ((1 << inputBits) - 2)) { // OR
-        return describe("",  "+", "≥1");
+        return describe("", "+", "≥1");
     } else if(lutData == (((1 << inputBits) - 2) ^ inputMask)) { // NOR
         return describe("~", "+", "≥1");
     } else {
         return describeRaw();
-        //return "𝑓";
+        // return "𝑓";
     }
 }
 
@@ -274,8 +280,8 @@ void FloorplanWidget::buildLogicTile(const Bitstream::Tile &tile, QGraphicsRectI
     CircuitBuilder builder(tileItem);
     builder.setGrid(GRID);
 
-    const auto &tileNets = _chip->tileNets(tile.x, tile.y);
-    const auto &tileBits = _chip->tilesBits["logic"];
+    const auto &tileNets   = _chip->tileNets(tile.x, tile.y);
+    const auto &tileBits   = _chip->tilesBits["logic"];
     const auto &netDrivers = _bitstream->netDrivers;
     const auto &netLoaded  = _bitstream->netLoaded;
 
@@ -293,9 +299,9 @@ void FloorplanWidget::buildLogicTile(const Bitstream::Tile &tile, QGraphicsRectI
 
     QString carry_in_mux = "carry_in_mux";
     net_t d_carry_in_mux = netDrivers[tileNets[carry_in_mux]];
-    QString carry_in = "carry_in";
-    net_t n_carry_in = tileNets[carry_in];
-    net_t d_carry_in = netDrivers[n_carry_in];
+    QString carry_in     = "carry_in";
+    net_t n_carry_in     = tileNets[carry_in];
+    net_t d_carry_in     = netDrivers[n_carry_in];
 
     bool hasCarryIn = false;
     QPointF carryIn;
@@ -310,7 +316,7 @@ void FloorplanWidget::buildLogicTile(const Bitstream::Tile &tile, QGraphicsRectI
     } else if(d_carry_in_mux != -1) {
         hasCarryIn = true;
         builder.addBuffer(CircuitBuilder::Up, 1, 1);
-        carryIn = builder.addPin(CircuitBuilder::Up, 1, 0);
+        carryIn            = builder.addPin(CircuitBuilder::Up, 1, 0);
         QPointF fabCarryIn = builder.addPin(CircuitBuilder::Down, 1, 0);
         builder.build("carry_in");
 
@@ -333,8 +339,7 @@ void FloorplanWidget::buildLogicTile(const Bitstream::Tile &tile, QGraphicsRectI
         uint lutData = 0;
         for(nbit_t nbit : {4, 14, 15, 5, 6, 16, 17, 7, 3, 13, 12, 2, 1, 11, 10, 0}) {
             lutData >>= 1;
-            if(lutConfig & (1 << nbit))
-                lutData |= 1 << 15;
+            if(lutConfig & (1 << nbit)) lutData |= 1 << 15;
         }
 
         bool cfgCarry = lutConfig & (1 << 8);
@@ -342,7 +347,7 @@ void FloorplanWidget::buildLogicTile(const Bitstream::Tile &tile, QGraphicsRectI
         bool srSet    = lutConfig & (1 << 18);
         bool asyncSR  = lutConfig & (1 << 19);
 
-        QString lutff = QString("lutff_%1").arg(lc);
+        QString lutff      = QString("lutff_%1").arg(lc);
         QString lutff_in0  = lutff + "/in_0";
         net_t n_lutff_in0  = tileNets[lutff_in0];
         net_t d_lutff_in0  = netDrivers[n_lutff_in0];
@@ -362,21 +367,21 @@ void FloorplanWidget::buildLogicTile(const Bitstream::Tile &tile, QGraphicsRectI
         net_t n_lutff_lin  = lc == 7 ? -1 : tileNets[lutff_lin];
         QString lutff_lout = lutff + "/lout";
         net_t n_lutff_lout = tileNets[lutff_lout];
-        bool  l_lutff_lout = netLoaded[n_lutff_lout];
+        bool l_lutff_lout  = netLoaded[n_lutff_lout];
         QString lutff_out  = lutff + "/out";
         net_t n_lutff_out  = tileNets[lutff_out];
-        bool  l_lutff_out  = netLoaded[n_lutff_out];
+        bool l_lutff_out   = netLoaded[n_lutff_out];
 
-        bool  hasLUT   = _showUnusedLogic || hasDFF || l_lutff_lout || l_lutff_out;
-        bool  hasCarry = _showUnusedLogic || cfgCarry;
-        bool  hasOut   = _showUnusedLogic || l_lutff_out;
+        bool hasLUT   = _showUnusedLogic || hasDFF || l_lutff_lout || l_lutff_out;
+        bool hasCarry = _showUnusedLogic || cfgCarry;
+        bool hasOut   = _showUnusedLogic || l_lutff_out;
         isActive |= hasDFF || l_lutff_lout || l_lutff_out;
 
-        bool  hasA = d_lutff_in0 != -1;
-        bool  hasB = d_lutff_in1 != -1;
-        bool  hasC = d_lutff_in2 != -1;
-        bool  hasD = d_lutff_in3 != -1;
-        uint  inputs = hasA + hasB + hasC + hasD;
+        bool hasA   = d_lutff_in0 != -1;
+        bool hasB   = d_lutff_in1 != -1;
+        bool hasC   = d_lutff_in2 != -1;
+        bool hasD   = d_lutff_in3 != -1;
+        uint inputs = hasA + hasB + hasC + hasD;
 
         builder.setColor(BLOCK_COLOR);
         // lutff_N (carry adder)
@@ -385,14 +390,10 @@ void FloorplanWidget::buildLogicTile(const Bitstream::Tile &tile, QGraphicsRectI
         if(hasCarry) {
             builder.addMux(CircuitBuilder::Up, 1.5, 0, 3);
             builder.addLabel(CircuitBuilder::Up, 1, 0, "∑₁");
-            if(d_lutff_in2 != -1)
-                carryI0 = builder.addPin(CircuitBuilder::Down, 0, 0);
-            if(hasCarryIn)
-                carryI1 = builder.addPin(CircuitBuilder::Down, 1, 0);
-            if(d_lutff_in1 != -1)
-                carryI2 = builder.addPin(CircuitBuilder::Down, 2, 0);
-            if(cfgCarry)
-                carryO  = builder.addPin(CircuitBuilder::Up,   1, 0);
+            if(d_lutff_in2 != -1) carryI0 = builder.addPin(CircuitBuilder::Down, 0, 0);
+            if(hasCarryIn) carryI1 = builder.addPin(CircuitBuilder::Down, 1, 0);
+            if(d_lutff_in1 != -1) carryI2 = builder.addPin(CircuitBuilder::Down, 2, 0);
+            if(cfgCarry) carryO = builder.addPin(CircuitBuilder::Up, 1, 0);
         }
         builder.build(lutff + "/carry");
         // lutff_N (look-up table)
@@ -406,14 +407,10 @@ void FloorplanWidget::buildLogicTile(const Bitstream::Tile &tile, QGraphicsRectI
             builder.addBlock(0, 0, 8, 4);
             QString functionDescr = recognizeFunction(lutData, hasA, hasB, hasC, hasD);
             builder.addText(4, 2, functionDescr, functionDescr.contains('\n') ? 1.2 : 1.5);
-            if(hasA)
-                lutI0 = builder.addPin(CircuitBuilder::Left,  0, 0, "A");
-            if(hasB)
-                lutI1 = builder.addPin(CircuitBuilder::Left,  0, 1, "B");
-            if(hasC)
-                lutI2 = builder.addPin(CircuitBuilder::Left,  0, 2, "C");
-            if(hasD)
-                lutI3 = builder.addPin(CircuitBuilder::Left,  0, 3, "D");
+            if(hasA) lutI0 = builder.addPin(CircuitBuilder::Left, 0, 0, "A");
+            if(hasB) lutI1 = builder.addPin(CircuitBuilder::Left, 0, 1, "B");
+            if(hasC) lutI2 = builder.addPin(CircuitBuilder::Left, 0, 2, "C");
+            if(hasD) lutI3 = builder.addPin(CircuitBuilder::Left, 0, 3, "D");
             lutO = builder.addPin(CircuitBuilder::Right, 7, 0, "O");
         }
         builder.build(lutff + "/lut");
@@ -426,28 +423,28 @@ void FloorplanWidget::buildLogicTile(const Bitstream::Tile &tile, QGraphicsRectI
             } else {
                 builder.addBlock(0, 0, 3, 3);
             }
-            ffD = builder.addPin(CircuitBuilder::Left,  0, 0, "D");
+            ffD = builder.addPin(CircuitBuilder::Left, 0, 0, "D");
             ffQ = builder.addPin(CircuitBuilder::Right, 2, 0, "Q");
             if(d_lutff_global_clk != -1 || _showUnusedLogic) {
-                ffCLK = builder.addPin(CircuitBuilder::Left,  0, 1, ">", negClk);
+                ffCLK = builder.addPin(CircuitBuilder::Left, 0, 1, ">", negClk);
                 ffCLKs.append(ffCLK);
             }
             if(d_lutff_global_cen != -1 || _showUnusedLogic) {
-                ffEN  = builder.addPin(CircuitBuilder::Left,  0, 2, "E");
+                ffEN = builder.addPin(CircuitBuilder::Left, 0, 2, "E");
                 ffENs.append(ffEN);
             }
             if(d_lutff_global_s_r != -1 || _showUnusedLogic) {
                 const char *label = srSet ? "S" : "R";
                 if(asyncSR) {
-                    ffSR = builder.addPin(CircuitBuilder::Down,  1, 2, label);
+                    ffSR = builder.addPin(CircuitBuilder::Down, 1, 2, label);
                 } else {
-                    ffSR = builder.addPin(CircuitBuilder::Left,  0, 3, label);
+                    ffSR = builder.addPin(CircuitBuilder::Left, 0, 3, label);
                 }
                 ffSRs.append(ffSR);
             }
         } else if(hasOut) {
             builder.addBuffer(CircuitBuilder::Right, 0, 0);
-            ffD = builder.addPin(CircuitBuilder::Left,  0, 0);
+            ffD = builder.addPin(CircuitBuilder::Left, 0, 0);
             ffQ = builder.addPin(CircuitBuilder::Right, 0, 0);
         }
         builder.build(lutff + "/ff");
@@ -541,7 +538,7 @@ void FloorplanWidget::buildLogicTile(const Bitstream::Tile &tile, QGraphicsRectI
             builder.build(lutff_cin, n_lutff_cin);
         }
         hasCarryIn = cfgCarry;
-        carryIn = carryO;
+        carryIn    = carryO;
     }
 
     if(!ffCLKs.isEmpty()) {

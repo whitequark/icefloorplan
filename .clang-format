@@ -1,0 +1,26 @@
+---
+Language: Cpp
+ColumnLimit: 100
+IndentWidth: 4
+AccessModifierOffset: -4
+SpaceBeforeParens: Never
+BreakBeforeBraces: Custom
+BreakConstructorInitializers: BeforeColon
+BraceWrapping:
+  AfterClass:      true
+  AfterFunction:   true
+  AfterNamespace:  true
+  SplitEmptyFunction:  false
+  SplitEmptyRecord:    false
+  SplitEmptyNamespace: false
+AllowShortBlocksOnASingleLine: false
+AllowShortIfStatementsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: false
+AlignConsecutiveAssignments: true
+IncludeCategories:
+  - Regex:           '^<Qt'
+    Priority:        -2
+  - Regex:           '^<Q'
+    Priority:        -1
+  - Regex:           '.*'
+    Priority:        1

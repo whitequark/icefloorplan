@@ -1,11 +1,11 @@
 #ifndef BITSTREAM_H
 #define BITSTREAM_H
 
-#include <QString>
 #include <QBitArray>
+#include <QIODevice>
 #include <QMap>
 #include <QSet>
-#include <QIODevice>
+#include <QString>
 #include "chipdb.h"
 
 class Bitstream
@@ -21,7 +21,7 @@ public:
     };
 
     Bitstream();
-    bool parse(QIODevice *in, std::function<void(int,int)> progress);
+    bool parse(QIODevice *in, std::function<void(int, int)> progress);
     bool process(ChipDB &chip);
 
     Tile &tile(coord_t x, coord_t y);

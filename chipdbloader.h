@@ -1,8 +1,8 @@
 #ifndef CHIPDBLOADER_H
 #define CHIPDBLOADER_H
 
-#include <QString>
 #include <QThread>
+#include <QString>
 #include "chipdb.h"
 
 class ChipDBLoader : public QThread

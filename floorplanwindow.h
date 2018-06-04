@@ -3,10 +3,11 @@
 
 #include <QMainWindow>
 #include <QProgressBar>
-#include "chipdb.h"
 #include "bitstream.h"
+#include "chipdb.h"
 
-namespace Ui {
+namespace Ui
+{
 class FloorplanWindow;
 }
 

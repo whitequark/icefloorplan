@@ -1,6 +1,6 @@
 #include <QtDebug>
-#include "ascparser.h"
 #include "bitstream.h"
+#include "ascparser.h"
 
 Bitstream::Bitstream()
 {}
@@ -10,7 +10,7 @@ Bitstream::Tile &Bitstream::tile(coord_t x, coord_t y)
     return tiles[qMakePair(x, y)];
 }
 
-bool Bitstream::parse(QIODevice *in, std::function<void(int,int)> progress)
+bool Bitstream::parse(QIODevice *in, std::function<void(int, int)> progress)
 {
     AscParser parser(in);
     while(parser.isOk() && !parser.atEnd()) {
@@ -22,15 +22,13 @@ bool Bitstream::parse(QIODevice *in, std::function<void(int,int)> progress)
         } else if(command == "device") {
             device = parser.parseName();
             parser.parseEol();
-        } else if(command == "io_tile"   || command == "logic_tile" ||
-                  command == "ramb_tile" || command == "ramt_tile"  ||
-                  command == "dsp0_tile" || command == "dsp1_tile"  ||
-                  command == "dsp2_tile" || command == "dsp3_tile"  ||
-                  command == "ipcon_tile") {
+        } else if(command == "io_tile" || command == "logic_tile" || command == "ramb_tile" ||
+                  command == "ramt_tile" || command == "dsp0_tile" || command == "dsp1_tile" ||
+                  command == "dsp2_tile" || command == "dsp3_tile" || command == "ipcon_tile") {
             Tile tile;
             tile.type = command.left(command.indexOf("_"));
-            tile.x = parser.parseDecimal();
-            tile.y = parser.parseDecimal();
+            tile.x    = parser.parseDecimal();
+            tile.y    = parser.parseDecimal();
             parser.parseEol();
 
             while(parser.isOk() && !parser.atCommand()) {
@@ -57,13 +55,14 @@ bool Bitstream::parse(QIODevice *in, std::function<void(int,int)> progress)
             // not implemented
             parser.skipToCommand();
         } else if(command == "sym") {
-            net_t net = parser.parseDecimal();
+            net_t net    = parser.parseDecimal();
             QString name = parser.parseName();
             parser.parseEol();
 
             symbols[net] = name;
         } else {
-            qCritical() << "unexpected command" << "." + command;
+            qCritical() << "unexpected command"
+                        << "." + command;
             return false;
         }
     }
@@ -99,19 +98,19 @@ bool Bitstream::process(ChipDB &chip)
 
         ChipDB::TileBits &tileBits = chip.tilesBits[tile.type];
         if(tileBits.rows * tileBits.columns != tile.bits.count()) {
-            qCritical() << "tile at" << tile.x << tile.y << "has wrong bit count" << tile.bits.count();
+            qCritical() << "tile at" << tile.x << tile.y << "has wrong bit count"
+                        << tile.bits.count();
             return false;
         }
 
         ChipDB::Tile &chipTile = chip.tile(tile.x, tile.y);
         for(ChipDB::Connection &buffer : chipTile.buffers) {
-            uint config = tile.extract(buffer.bits);
+            uint config  = tile.extract(buffer.bits);
             net_t srcNet = buffer.srcNets[config];
             if(srcNet != (net_t)-1) {
                 if(netDrivers[buffer.dstNet] != (net_t)-1) {
                     qCritical() << "net" << buffer.dstNet << "is driven by net"
-                                << netDrivers[buffer.dstNet] << "and"
-                                << srcNet;
+                                << netDrivers[buffer.dstNet] << "and" << srcNet;
                     return false;
                 }
                 netDrivers[buffer.dstNet] = srcNet;
@@ -122,4 +121,3 @@ bool Bitstream::process(ChipDB &chip)
 
     return true;
 }
-

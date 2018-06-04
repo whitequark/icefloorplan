@@ -16,17 +16,16 @@ bool AscParser::atEnd() const
 
 void AscParser::refill()
 {
-    if(_pos < _line.length())
-        return;
+    if(_pos < _line.length()) return;
     _pos = 0;
 
     _line = _in->readLine();
     _lineno++;
-//    qDebug() << "read" << _line;
+    // qDebug() << "read" << _line;
     while(_line == "\n" || _line[0] == '#') {
         _line = _in->readLine();
         _lineno++;
-//        qDebug() << "read" << _line;
+        // qDebug() << "read" << _line;
     }
 }
 
@@ -34,13 +33,12 @@ QRegularExpressionMatch AscParser::matchRegexp(const QRegularExpression &re)
 {
     refill();
 
-    QRegularExpressionMatch match = re.match(_line, _pos,
-                                             QRegularExpression::NormalMatch,
+    QRegularExpressionMatch match = re.match(_line, _pos, QRegularExpression::NormalMatch,
                                              QRegularExpression::AnchoredMatchOption);
     if(!match.hasMatch()) {
         _error = true;
-        qCritical() << "at line" << _lineno <<
-                       "cannot match" << re.pattern() << "on" << _line.mid(_pos);
+        qCritical() << "at line" << _lineno << "cannot match" << re.pattern() << "on"
+                    << _line.mid(_pos);
     } else {
         _pos += match.capturedLength();
     }
@@ -51,8 +49,7 @@ QRegularExpressionMatch AscParser::matchToken(const QRegularExpression &re)
 {
     QRegularExpressionMatch match = matchRegexp(re);
     if(match.hasMatch()) {
-        while(_line[_pos] == ' ' ||
-              _line[_pos] == '\n') {
+        while(_line[_pos] == ' ' || _line[_pos] == '\n') {
             _pos++;
         }
     }
@@ -68,18 +65,17 @@ void AscParser::parseEol()
 {
     if(_pos < _line.length()) {
         _error = true;
-        qCritical() << "at line" << _lineno <<
-                       "not at end of line:" << _line.mid(_pos) << "remaining";
+        qCritical() << "at line" << _lineno << "not at end of line:" << _line.mid(_pos)
+                    << "remaining";
     }
 }
 
 QString AscParser::parseRest()
 {
     QString rest = _line.mid(_pos);
-    _pos = _line.length();
+    _pos         = _line.length();
 
-    if(rest.endsWith("\n"))
-        rest.chop(1);
+    if(rest.endsWith("\n")) rest.chop(1);
     return rest;
 }
 

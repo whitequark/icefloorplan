@@ -1,8 +1,8 @@
 #ifndef BITSTREAMLOADER_H
 #define BITSTREAMLOADER_H
 
-#include <QString>
 #include <QThread>
+#include <QString>
 #include "bitstream.h"
 
 class BitstreamLoader : public QThread

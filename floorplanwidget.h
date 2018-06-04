@@ -1,11 +1,11 @@
 #ifndef FLOORPLANWIDGET_H
 #define FLOORPLANWIDGET_H
 
-#include <QGraphicsView>
 #include <QGestureEvent>
 #include <QGraphicsPathItem>
-#include "chipdb.h"
+#include <QGraphicsView>
 #include "bitstream.h"
+#include "chipdb.h"
 
 class FloorplanWidget : public QGraphicsView
 {

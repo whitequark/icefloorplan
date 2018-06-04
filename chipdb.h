@@ -1,13 +1,13 @@
 #ifndef CHIPDB_H
 #define CHIPDB_H
 
-#include <QVector>
-#include <QMap>
 #include <QIODevice>
+#include <QMap>
+#include <QVector>
 
-typedef uint8_t  coord_t;
+typedef uint8_t coord_t;
 typedef uint16_t nbit_t;
-typedef int32_t  net_t;
+typedef int32_t net_t;
 
 class ChipDB
 {
@@ -57,7 +57,7 @@ public:
     };
 
     ChipDB();
-    bool parse(QIODevice *in, std::function<void(int,int)> progress);
+    bool parse(QIODevice *in, std::function<void(int, int)> progress);
 
     Tile &tile(coord_t x, coord_t y);
     QMap<QString, net_t> tileNets(coord_t x, coord_t y);

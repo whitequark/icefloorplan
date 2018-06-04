@@ -1,7 +1,7 @@
 #include <QApplication>
-#include "floorplanwindow.h"
-#include "chipdb.h"
 #include "bitstream.h"
+#include "chipdb.h"
+#include "floorplanwindow.h"
 
 int main(int argc, char *argv[])
 {

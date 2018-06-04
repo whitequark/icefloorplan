@@ -1,9 +1,9 @@
 #ifndef CIRCUITBUILDER_H
 #define CIRCUITBUILDER_H
 
+#include <QFont>
 #include <QPainterPath>
 #include <QPen>
-#include <QFont>
 #include "chipdb.h"
 
 class QGraphicsItem;
@@ -12,9 +12,7 @@ class QGraphicsPathItem;
 class CircuitBuilder
 {
 public:
-    enum Direction {
-        Up, Right, Down, Left
-    };
+    enum Direction { Up, Right, Down, Left };
 
     CircuitBuilder(QGraphicsItem *parent);
 

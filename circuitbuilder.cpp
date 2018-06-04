@@ -1,6 +1,6 @@
-#include <QGraphicsPathItem>
 #include <QFont>
 #include <QFontMetrics>
+#include <QGraphicsPathItem>
 #include "circuitbuilder.h"
 
 CircuitBuilder::CircuitBuilder(QGraphicsItem *parent)
@@ -43,7 +43,7 @@ QGraphicsPathItem *CircuitBuilder::build(const QString &toolTip, net_t net)
     textItem->setPen(Qt::NoPen);
     textItem->setBrush(_pen.brush());
 
-    _path = QPainterPath();
+    _path     = QPainterPath();
     _textPath = QPainterPath();
     return item;
 }
@@ -128,23 +128,33 @@ QPointF CircuitBuilder::joinTo(QPointF p, bool junction)
 
 void CircuitBuilder::addBlock(qreal x, qreal y, qreal w, qreal h)
 {
-    _path.addRect(QRectF((_origin + QPointF(x, y)) * _grid,
-                         QSizeF (w * _grid, h * _grid)));
+    _path.addRect(QRectF((_origin + QPointF(x, y)) * _grid, QSizeF(w * _grid, h * _grid)));
 }
 
-void CircuitBuilder::directionToVectors(CircuitBuilder::Direction dir,
-                                        QPointF *h, QPointF *v)
+void CircuitBuilder::directionToVectors(CircuitBuilder::Direction dir, QPointF *h, QPointF *v)
 {
     switch(dir) {
-    case Up:    *h = QPointF(1, 0); *v = QPointF(0, -1); break;
-    case Down:  *h = QPointF(1, 0); *v = QPointF(0,  1); break;
-    case Left:  *h = QPointF(0, 1); *v = QPointF(-1, 0); break;
-    case Right: *h = QPointF(0, 1); *v = QPointF( 1, 0); break;
+    case Up:
+        *h = QPointF(1, 0);
+        *v = QPointF(0, -1);
+        break;
+    case Down:
+        *h = QPointF(1, 0);
+        *v = QPointF(0, 1);
+        break;
+    case Left:
+        *h = QPointF(0, 1);
+        *v = QPointF(-1, 0);
+        break;
+    case Right:
+        *h = QPointF(0, 1);
+        *v = QPointF(1, 0);
+        break;
     }
 }
 
-void CircuitBuilder::addMux(CircuitBuilder::Direction dir,
-                            qreal x, qreal y, qreal width, qreal height)
+void CircuitBuilder::addMux(CircuitBuilder::Direction dir, qreal x, qreal y, qreal width,
+                            qreal height)
 {
     QPointF h, v;
     directionToVectors(dir, &h, &v);
@@ -167,7 +177,7 @@ void CircuitBuilder::addBuffer(CircuitBuilder::Direction dir, qreal x, qreal y)
 
     QPainterPath bufferPath;
     bufferPath.moveTo(-h * 0.75 * _grid);
-    bufferPath.lineTo( v * _grid);
+    bufferPath.lineTo(v * _grid);
     bufferPath.lineTo(+h * 0.75 * _grid);
     bufferPath.lineTo(-h * 0.75 * _grid);
     bufferPath.translate(h / 2 * _grid);
@@ -176,8 +186,8 @@ void CircuitBuilder::addBuffer(CircuitBuilder::Direction dir, qreal x, qreal y)
     _path.addPath(bufferPath);
 }
 
-QPointF CircuitBuilder::addPin(CircuitBuilder::Direction dir, qreal x, qreal y,
-                               const QString &name, bool activeLow)
+QPointF CircuitBuilder::addPin(CircuitBuilder::Direction dir, qreal x, qreal y, const QString &name,
+                               bool activeLow)
 {
     QPointF h, v;
     directionToVectors(dir, &h, &v);
@@ -191,8 +201,7 @@ QPointF CircuitBuilder::addPin(CircuitBuilder::Direction dir, qreal x, qreal y,
     }
     pinPath.lineTo(v * _grid);
 
-    pinPath.translate((_origin + QPointF(x + 0.5, y + 0.5)) * _grid
-                      + 0.5 * v * _pen.widthF());
+    pinPath.translate((_origin + QPointF(x + 0.5, y + 0.5)) * _grid + 0.5 * v * _pen.widthF());
     _path.addPath(pinPath);
 
     if(name == ">") {
@@ -211,11 +220,10 @@ void CircuitBuilder::addClockSymbol(CircuitBuilder::Direction dir, qreal x, qrea
 
     QPainterPath symbolPath;
     symbolPath.moveTo((v * 0.5 - h * 0.4) * _grid);
-    symbolPath.lineTo( v * 0.1      * _grid);
+    symbolPath.lineTo(v * 0.1 * _grid);
     symbolPath.lineTo((v * 0.5 + h * 0.4) * _grid);
 
-    symbolPath.translate((_origin + QPointF(x + 0.5, y + 0.5)) * _grid
-                         - 0.5 * v * _pen.widthF());
+    symbolPath.translate((_origin + QPointF(x + 0.5, y + 0.5)) * _grid - 0.5 * v * _pen.widthF());
     _path.addPath(symbolPath);
 }
 
@@ -261,9 +269,7 @@ void CircuitBuilder::addText(qreal x, qreal y, QString text, qreal size)
     }
 
     QRectF bounds = textPath.boundingRect();
-    textPath.translate(-bounds.x() - bounds.width()  / 2,
-                       -bounds.y() - bounds.height() / 2);
+    textPath.translate(-bounds.x() - bounds.width() / 2, -bounds.y() - bounds.height() / 2);
     bounds = textPath.boundingRect();
-    _textPath.addPath(textPath.translated(QPointF(-1, -1) +
-                                          (_origin + QPointF(x, y)) * _grid));
+    _textPath.addPath(textPath.translated(QPointF(-1, -1) + (_origin + QPointF(x, y)) * _grid));
 }

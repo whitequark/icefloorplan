@@ -1,13 +1,13 @@
-#include <QProgressBar>
-#include <QMessageBox>
 #include <QFileDialog>
-#include "chipdbloader.h"
-#include "bitstreamloader.h"
+#include <QMessageBox>
+#include <QProgressBar>
 #include "floorplanwindow.h"
+#include "bitstreamloader.h"
+#include "chipdbloader.h"
 #include "ui_floorplanwindow.h"
 
-FloorplanWindow::FloorplanWindow(QWidget *parent) :
-    QMainWindow(parent), _ui(new Ui::FloorplanWindow)
+FloorplanWindow::FloorplanWindow(QWidget *parent)
+    : QMainWindow(parent), _ui(new Ui::FloorplanWindow)
 {
     _ui->setupUi(this);
     _ui->statusBar->addPermanentWidget(&_progressBar);
@@ -15,16 +15,16 @@ FloorplanWindow::FloorplanWindow(QWidget *parent) :
 
     connect(_ui->floorplan, &FloorplanWidget::netHovered, this,
             [=](net_t net, QString name, QString symbol) {
-        if(net != (net_t)-1) {
-            QString msg = QString("Net %2 (%1)").arg(name).arg(net);
-            if(!symbol.isNull()) {
-                msg += ", symbol " + symbol;
-            }
-            _ui->statusBar->showMessage(msg);
-        } else {
-            _ui->statusBar->clearMessage();
-        }
-    });
+                if(net != (net_t)-1) {
+                    QString msg = QString("Net %2 (%1)").arg(name).arg(net);
+                    if(!symbol.isNull()) {
+                        msg += ", symbol " + symbol;
+                    }
+                    _ui->statusBar->showMessage(msg);
+                } else {
+                    _ui->statusBar->clearMessage();
+                }
+            });
 }
 
 FloorplanWindow::~FloorplanWindow()
@@ -39,8 +39,8 @@ void FloorplanWindow::openExample()
 
 void FloorplanWindow::openFile()
 {
-    QString fileName = QFileDialog::getOpenFileName(
-                this, "Open bitstream", "", "Bitstreams(*.txt *.asc)");
+    QString fileName =
+        QFileDialog::getOpenFileName(this, "Open bitstream", "", "Bitstreams(*.txt *.asc)");
     if(!fileName.isNull()) {
         loadBitstream(fileName);
     }
@@ -109,7 +109,7 @@ void FloorplanWindow::updateFloorplan()
         _ui->floorplan->setData(&_bitstream, &_chipDBCache[_bitstream.device]);
     } else {
         _ui->statusBar->clearMessage();
-        QMessageBox::critical(this, "Error", "Cannot validate bitstream produced by " +
-                                             _bitstream.comment + "!");
+        QMessageBox::critical(this, "Error",
+                              "Cannot validate bitstream produced by " + _bitstream.comment + "!");
     }
 }
