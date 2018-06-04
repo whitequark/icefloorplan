@@ -3,6 +3,8 @@
 #include <QGraphicsPathItem>
 #include <QWheelEvent>
 #include <QMouseEvent>
+#include <QTouchEvent>
+#include <QPinchGesture>
 #include "chipdb.h"
 #include "bitstream.h"
 #include "circuitbuilder.h"
@@ -26,6 +28,7 @@ FloorplanWidget::FloorplanWidget(QWidget *parent)
     setUseOpenGL(_useOpenGL);
     setScene(&_scene);
     _scene.setBackgroundBrush(Qt::white);
+    grabGesture(Qt::PinchGesture);
 }
 
 void FloorplanWidget::clear()
@@ -47,8 +50,6 @@ void FloorplanWidget::wheelEvent(QWheelEvent *event)
         float s = 1 + event->angleDelta().y() / 1200.0;
         scale(s, s);
         event->accept();
-    } else {
-        QGraphicsView::wheelEvent(event);
     }
 }
 
@@ -88,6 +89,32 @@ void FloorplanWidget::mouseMoveEvent(QMouseEvent *event)
             emit netHovered(-1, QString(), QString());
         }
     }
+
+    QGraphicsView::mouseMoveEvent(event);
+}
+
+bool FloorplanWidget::gestureEvent(QGestureEvent *event) {
+    if (auto pinch = static_cast<QPinchGesture *>
+                     (event->gesture(Qt::PinchGesture)))
+    {
+        if (pinch->changeFlags() & QPinchGesture::ScaleFactorChanged) {
+            auto s = pinch->scaleFactor();
+            scale(s, s);
+            return true;
+        }
+    }
+    return false;
+}
+
+bool FloorplanWidget::event(QEvent *event) {
+
+    if (event->type() == QEvent::Gesture) {
+        if (gestureEvent(static_cast<QGestureEvent*>(event))) {
+            return true;
+        }
+    }
+
+    return QWidget::event(event);
 }
 
 void FloorplanWidget::setUseOpenGL(bool on)

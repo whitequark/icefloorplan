@@ -2,6 +2,7 @@
 #define FLOORPLANWIDGET_H
 
 #include <QGraphicsView>
+#include <QGestureEvent>
 #include <QGraphicsPathItem>
 #include "chipdb.h"
 #include "bitstream.h"
@@ -29,6 +30,7 @@ signals:
     void netHovered(net_t net, QString name, QString symbol);
 
 protected:
+    bool event(QEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
 
@@ -52,6 +54,7 @@ private:
 
     QString recognizeFunction(uint lutData, bool hasA, bool hasB, bool hasC, bool hasD,
                               bool describeInputs = true) const;
+    bool gestureEvent(QGestureEvent *event);
 };
 
 #endif // FLOORPLANWIDGET_H
