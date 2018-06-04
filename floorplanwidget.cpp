@@ -93,25 +93,22 @@ void FloorplanWidget::mouseMoveEvent(QMouseEvent *event)
     QGraphicsView::mouseMoveEvent(event);
 }
 
-bool FloorplanWidget::gestureEvent(QGestureEvent *event) {
+void FloorplanWidget::gestureEvent(QGestureEvent *event) {
     if (auto pinch = static_cast<QPinchGesture *>
                      (event->gesture(Qt::PinchGesture)))
     {
         if (pinch->changeFlags() & QPinchGesture::ScaleFactorChanged) {
             auto s = pinch->scaleFactor();
             scale(s, s);
-            return true;
+            event->accept();
         }
     }
-    return false;
 }
 
 bool FloorplanWidget::event(QEvent *event) {
 
     if (event->type() == QEvent::Gesture) {
-        if (gestureEvent(static_cast<QGestureEvent*>(event))) {
-            return true;
-        }
+        gestureEvent(static_cast<QGestureEvent*>(event));
     }
 
     return QGraphicsView::event(event);

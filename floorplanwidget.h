@@ -33,6 +33,7 @@ protected:
     bool event(QEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
+    virtual void gestureEvent(QGestureEvent *event);
 
 private:
     bool _useOpenGL;
@@ -54,7 +55,6 @@ private:
 
     QString recognizeFunction(uint lutData, bool hasA, bool hasB, bool hasC, bool hasD,
                               bool describeInputs = true) const;
-    bool gestureEvent(QGestureEvent *event);
 };
 
 #endif // FLOORPLANWIDGET_H
