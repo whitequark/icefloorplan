@@ -6,6 +6,7 @@
 #include <QGraphicsView>
 #include "bitstream.h"
 #include "chipdb.h"
+#include "floorplanbuilder.h"
 
 class FloorplanWidget : public QGraphicsView
 {
@@ -13,7 +14,7 @@ class FloorplanWidget : public QGraphicsView
 public:
     explicit FloorplanWidget(QWidget *parent = nullptr);
 
-    void setData(Bitstream *bitstream, ChipDB *chip);
+    void setData(Bitstream *bitstream, ChipDB *chipDB);
 
 public slots:
     void setUseOpenGL(bool on);
@@ -24,6 +25,7 @@ public slots:
 
     void setShowUnusedLogic(bool on);
 
+    void rebuildTiles();
     void resetZoom();
 
 signals:
@@ -37,26 +39,16 @@ protected:
 
 private:
     bool _useOpenGL;
-    enum { VerboseLUTs, CompactLUTs, RawLUTs } _lutNotation;
+    FloorplanBuilder::LUTNotation _lutNotation;
     bool _showUnusedLogic;
 
     Bitstream *_bitstream;
-    ChipDB *_chip;
+    ChipDB *_chipDB;
     QGraphicsScene _scene;
     QGraphicsPathItem *_hovered;
     QPen _hoveredOldPen;
 
     bool _suppressDrag;
-
-    void clear();
-    void buildTiles();
-    void buildTile(const Bitstream::Tile &tile);
-    void buildLogicTile(const Bitstream::Tile &tile, QGraphicsRectItem *tileItem);
-    void buildIOTile(const Bitstream::Tile &tile, QGraphicsRectItem *tileItem);
-    void buildRAMTile(const Bitstream::Tile &tile, QGraphicsRectItem *tileItem);
-
-    QString recognizeFunction(uint lutData, bool hasA, bool hasB, bool hasC, bool hasD,
-                              bool describeInputs = true) const;
 };
 
 #endif // FLOORPLANWIDGET_H

@@ -17,7 +17,8 @@ SOURCES += \
     bitstream.cpp \
     chipdbloader.cpp \
     bitstreamloader.cpp \
-    circuitbuilder.cpp
+    circuitbuilder.cpp \
+    floorplanbuilder.cpp
 
 HEADERS += \
     floorplanwindow.h \
@@ -27,7 +28,8 @@ HEADERS += \
     bitstream.h \
     chipdbloader.h \
     bitstreamloader.h \
-    circuitbuilder.h
+    circuitbuilder.h \
+    floorplanbuilder.h
 
 FORMS += \
     floorplanwindow.ui
