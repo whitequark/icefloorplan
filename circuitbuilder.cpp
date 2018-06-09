@@ -60,13 +60,13 @@ QPointF CircuitBuilder::moveTo(QPointF p)
     return p;
 }
 
-QPointF CircuitBuilder::segmentTo(qreal x, qreal y)
+QPointF CircuitBuilder::wireTo(qreal x, qreal y)
 {
     QPointF p = _origin + QPointF(x, y);
-    return segmentTo(p);
+    return wireTo(p);
 }
 
-QPointF CircuitBuilder::segmentTo(QPointF p)
+QPointF CircuitBuilder::wireTo(QPointF p)
 {
     _path.lineTo((p + QPointF(0.5, 0.5)) * _grid);
     return p;
@@ -110,11 +110,8 @@ void CircuitBuilder::junction(bool condition)
 
 QPointF CircuitBuilder::joinTo(qreal x, qreal y, bool junction)
 {
-    if(junction) {
-        return junctionTo(x, y);
-    } else {
-        return segmentTo(x, y);
-    }
+    QPointF p = _origin + QPointF(x, y);
+    return joinTo(p, junction);
 }
 
 QPointF CircuitBuilder::joinTo(QPointF p, bool junction)
@@ -122,7 +119,7 @@ QPointF CircuitBuilder::joinTo(QPointF p, bool junction)
     if(junction) {
         return junctionTo(p);
     } else {
-        return segmentTo(p);
+        return wireTo(p);
     }
 }
 

@@ -17,20 +17,49 @@ public:
     CircuitBuilder(QGraphicsItem *parent);
 
     void setGrid(qreal grid);
+    void setOrigin(qreal x, qreal y);
     void setColor(const QColor &color);
 
-    void setOrigin(qreal x, qreal y);
-
+    /// Set current position to `origin+(x,y)`.
+    /// Return new current position.
     QPointF moveTo(qreal x, qreal y);
+    /// Set current position to `p`.
+    /// Return new current position.
     QPointF moveTo(QPointF p);
-    QPointF segmentTo(qreal x, qreal y);
-    QPointF segmentTo(QPointF p);
+
+    /// Draw a wire from current position to new current position `origin+(x,y)`.
+    /// Return new current position.
+    QPointF wireTo(qreal x, qreal y);
+    /// Draw a wire from current position to new current position `p`.
+    /// Return new current position.
+    QPointF wireTo(QPointF p);
+
+    /// Draw a junction at position `origin+(x,y)` without changing current position.
+    /// Return `origin+(x,y)`.
     QPointF junctionAt(qreal x, qreal y);
+    /// Draw a junction at position `p` without changing current positoin.
+    /// Return `p`.
     QPointF junctionAt(QPointF p);
+
+    /// Draw a wire from current position to new current position `origin+(x,y)`
+    /// and draw a junction at new current position.
+    /// Return new current position.
     QPointF junctionTo(qreal x, qreal y);
+    /// Draw a wire from current position to new current position `p`
+    /// and draw a junction at new current position.
+    /// Return new current position.
     QPointF junctionTo(QPointF p);
+
+    /// Draw a junction at current position if `condition` is true.
     void junction(bool condition = true);
+
+    /// Draw a wire from current position to new current position `origin+(x,y)`
+    /// and draw a junction at new current position if `junction` is true.
+    /// Return new current position.
     QPointF joinTo(qreal x, qreal y, bool junction);
+    /// Draw a wire from current position to new current position `p`
+    /// and draw a junction at new current position if `junction` is true.
+    /// Return new current position.
     QPointF joinTo(QPointF p, bool junction);
 
     void addBlock(qreal x, qreal y, qreal w, qreal h);

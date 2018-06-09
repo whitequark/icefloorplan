@@ -335,7 +335,7 @@ void FloorplanWidget::buildLogicTile(const Bitstream::Tile &tile, QGraphicsRectI
         if(d_carry_in != -1) {
             builder.setColor(NET_COLOR);
             builder.moveTo(fabCarryIn);
-            builder.segmentTo(fabCarryIn + QPointF(0, 1));
+            builder.wireTo(fabCarryIn + QPointF(0, 1));
             builder.build("carry_in", n_carry_in);
         }
     }
@@ -467,7 +467,7 @@ void FloorplanWidget::buildLogicTile(const Bitstream::Tile &tile, QGraphicsRectI
         if(hasA) {
             QPointF lutffI0 = builder.moveTo(0, 0);
             if(hasLUT) {
-                builder.segmentTo(lutI0);
+                builder.wireTo(lutI0);
             }
             builder.build(lutff_in0, n_lutff_in0);
         }
@@ -475,11 +475,11 @@ void FloorplanWidget::buildLogicTile(const Bitstream::Tile &tile, QGraphicsRectI
         if(hasB) {
             QPointF lutffI1 = builder.moveTo(0, 1);
             if(hasLUT) {
-                builder.segmentTo(lutI1);
+                builder.wireTo(lutI1);
             }
             if(hasCarry) {
                 builder.joinTo(QPointF(carryI2.x(), lutffI1.y()), hasLUT);
-                builder.segmentTo(carryI2);
+                builder.wireTo(carryI2);
             }
             builder.build(lutff_in1, n_lutff_in1);
         }
@@ -487,20 +487,20 @@ void FloorplanWidget::buildLogicTile(const Bitstream::Tile &tile, QGraphicsRectI
         if(hasC) {
             builder.moveTo(lutI2);
             if(n_lutff_in2 == n_lutff_lin) {
-                builder.segmentTo(3, 2);
+                builder.wireTo(3, 2);
             } else if(hasLUT) {
-                QPointF lutffI2 = builder.segmentTo(0, 2);
+                QPointF lutffI2 = builder.wireTo(0, 2);
             }
             if(hasCarry) {
                 builder.moveTo(carryI0);
-                builder.segmentTo(1, 2);
+                builder.wireTo(1, 2);
                 if(n_lutff_in2 == n_lutff_lin) {
-                    builder.segmentTo(3, 2);
+                    builder.wireTo(3, 2);
                     builder.junction(hasLUT);
                 } else if(hasLUT) {
                     builder.junction();
                 } else {
-                    QPointF lutffI2 = builder.segmentTo(0, 2);
+                    QPointF lutffI2 = builder.wireTo(0, 2);
                 }
             }
             builder.build(lutff_in2, n_lutff_in2);
@@ -517,35 +517,35 @@ void FloorplanWidget::buildLogicTile(const Bitstream::Tile &tile, QGraphicsRectI
                 QPointF lutffI3 = builder.moveTo(0, 3);
             }
             if(hasLUT) {
-                builder.segmentTo(lutI3);
+                builder.wireTo(lutI3);
             }
             builder.build(lutff_in3, n_lutff_in3);
         }
         // lutff_N/lout
         if(hasLUT) {
             builder.moveTo(lutO);
-            builder.segmentTo(ffD);
+            builder.wireTo(ffD);
             if(l_lutff_lout) {
                 builder.junctionTo(13.5, 0);
-                builder.segmentTo(13.5, -2);
-                builder.segmentTo(3, -2);
-                builder.segmentTo(3, -4);
+                builder.wireTo(13.5, -2);
+                builder.wireTo(3, -2);
+                builder.wireTo(3, -4);
             }
             builder.build(lutff_lout, n_lutff_lout);
         }
         // lutff_N/out
         if(l_lutff_out) {
             builder.moveTo(ffQ);
-            builder.segmentTo(22, 0);
+            builder.wireTo(22, 0);
             builder.build(lutff_out, n_lutff_out);
         }
         // carry_mux_in or lutff_N-1/cout
         if(hasCarryIn) {
             builder.moveTo(carryIn);
             if(hasCarry) {
-                builder.segmentTo(carryI1);
+                builder.wireTo(carryI1);
             } else if(hasLUT) {
-                builder.segmentTo(QPointF(carryIn.x(), lutI3.y()));
+                builder.wireTo(QPointF(carryIn.x(), lutI3.y()));
             }
             builder.build(lutff_cin, n_lutff_cin);
         }
@@ -557,10 +557,10 @@ void FloorplanWidget::buildLogicTile(const Bitstream::Tile &tile, QGraphicsRectI
         builder.setOrigin(15, -5);
 
         QPointF tileCLK = builder.moveTo(1, 0);
-        builder.segmentTo(1, 8 * 6 + 3);
+        builder.wireTo(1, 8 * 6 + 3);
         for(QPointF lcCLK : ffCLKs) {
             builder.junctionTo(QPointF(tileCLK.x(), lcCLK.y()));
-            builder.segmentTo(lcCLK);
+            builder.wireTo(lcCLK);
         }
         builder.build(lutff_global_clk, n_lutff_global_clk);
     }
@@ -578,10 +578,10 @@ void FloorplanWidget::buildLogicTile(const Bitstream::Tile &tile, QGraphicsRectI
 
         builder.setColor(NET_COLOR);
         QPointF tileEN = builder.moveTo(1, 0);
-        builder.segmentTo(1, 8 * 6 + 2);
+        builder.wireTo(1, 8 * 6 + 2);
         for(QPointF lcEN : ffENs) {
             builder.junctionTo(QPointF(tileEN.x(), lcEN.y()));
-            builder.segmentTo(lcEN);
+            builder.wireTo(lcEN);
         }
         builder.build(lutff_global_cen, n_lutff_global_cen);
     }
@@ -599,10 +599,10 @@ void FloorplanWidget::buildLogicTile(const Bitstream::Tile &tile, QGraphicsRectI
 
         builder.setColor(NET_COLOR);
         QPointF tileRS = builder.moveTo(1, 0);
-        builder.segmentTo(1, 8 * 6 + 1);
+        builder.wireTo(1, 8 * 6 + 1);
         for(QPointF lcSR : ffSRs) {
             builder.junctionTo(QPointF(tileRS.x(), lcSR.y()));
-            builder.segmentTo(lcSR);
+            builder.wireTo(lcSR);
         }
         builder.build(lutff_global_s_r, n_lutff_global_s_r);
     }
