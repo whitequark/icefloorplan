@@ -150,68 +150,120 @@ void FloorplanBuilder::buildLogicTile(const Bitstream::Tile &tile, QGraphicsRect
     const auto &netDrivers = _bitstream->netDrivers;
     const auto &netLoaded  = _bitstream->netLoaded;
 
+    // See topology and bitstream documentation at:
+    //  * http://www.clifford.at/icestorm/logic_tile.html
+    //  * http://www.clifford.at/icestorm/bitdocs-1k/tile_6_9.html
+
+    // Variables used in this function:
+    //  * net name as a string, used to fetch net properties
+    //    QString <net_name> = "<net_name>";
+    //  * chipdb net number corresponding to <net_name> (n_ stands for net)
+    //    net_t n_<net_name> = tileNets[<net_name>];
+    //  * net that is driving <net_name> or -1 if it's not driven (d_ stands for driver)
+    //    net_t d_<net_name> = netDrivers[n_<net_name>];
+    //  * whether <net_name> is driving any other net (l_ stands for loaded)
+    //    bool  l_<net_name> = netLoaded[n_<net_name>];
+    // NB: each tile has same net names but almost always different global nets
+    // connected to them.
+
+    // All FFs in the tile have the same clock polarity.
     bool negClk = tile.extract(tileBits.functions["NegClk"]);
 
-    QString lutff_global_cen = "lutff_global/cen";
-    net_t n_lutff_global_cen = tileNets[lutff_global_cen];
-    net_t d_lutff_global_cen = netDrivers[n_lutff_global_cen];
+    // All FFs in the tile share the clock (clk), enable (cen) and set/reset (s_r)
+    // nets. Whether the FF is enabled, whether the set/reset line sets or resets
+    // the FF, and whether the set/reset is synchronous or asynchronous is determined
+    // per individual FF.
     QString lutff_global_clk = "lutff_global/clk";
     net_t n_lutff_global_clk = tileNets[lutff_global_clk];
     net_t d_lutff_global_clk = netDrivers[n_lutff_global_clk];
+    QString lutff_global_cen = "lutff_global/cen";
+    net_t n_lutff_global_cen = tileNets[lutff_global_cen];
+    net_t d_lutff_global_cen = netDrivers[n_lutff_global_cen];
     QString lutff_global_s_r = "lutff_global/s_r";
     net_t n_lutff_global_s_r = tileNets[lutff_global_s_r];
     net_t d_lutff_global_s_r = netDrivers[n_lutff_global_s_r];
 
-    QString carry_in_mux = "carry_in_mux";
-    net_t d_carry_in_mux = netDrivers[tileNets[carry_in_mux]];
+    // The net carry_in in tile (x, y) is connected to lutff_7/cout in tile (x, y-1).
+    // The net carry_in_mux may be driven by carry_in or by a constant determined
+    // by the bitstream bit CarryInSet.
     QString carry_in     = "carry_in";
     net_t n_carry_in     = tileNets[carry_in];
     net_t d_carry_in     = netDrivers[n_carry_in];
+    QString carry_in_mux = "carry_in_mux";
+    net_t d_carry_in_mux = netDrivers[tileNets[carry_in_mux]];
+    bool carryInSet      = tile.extract(tileBits.functions["CarryInSet"]);
 
+    // hasCarryIn determines whether we have carry in from either the previous logic cell,
+    // the tile to the bottom, or a constant driver.
+    // If it's set, carryIn has the coordinates of the output pin of the driver.
     bool hasCarryIn = false;
     QPointF carryIn;
+
+    // Draw the carry in driver (if any).
     builder.setColor(BLOCK_COLOR);
     builder.setOrigin(1, 8 * 6 - 1.5);
-    if(tile.extract(tileBits.functions["CarryInSet"])) {
-        hasCarryIn = true;
-        builder.addBuffer(CircuitBuilder::Up, 1, 1);
-        builder.addLabel(CircuitBuilder::Up, 1, 0.1, "1");
-        carryIn = builder.addPin(CircuitBuilder::Up, 1, 0);
-        builder.build("carry_in");
-    } else if(d_carry_in_mux != -1) {
+    if(d_carry_in_mux != -1) {
+        // Draw a buffer from carry out of tile (x, y-1) to this tile's carry in.
         hasCarryIn = true;
         builder.addBuffer(CircuitBuilder::Up, 1, 1);
         carryIn            = builder.addPin(CircuitBuilder::Up, 1, 0);
         QPointF fabCarryIn = builder.addPin(CircuitBuilder::Down, 1, 0);
         builder.build("carry_in");
 
+        // TODO: replace this stub carry_in net with a real one.
         if(d_carry_in != -1) {
             builder.setColor(NET_COLOR);
             builder.moveTo(fabCarryIn);
             builder.wireTo(fabCarryIn + QPointF(0, 1));
             builder.build("carry_in", n_carry_in);
         }
+    } else if(carryInSet) {
+        // Draw a constant driver.
+        hasCarryIn = true;
+        builder.addBuffer(CircuitBuilder::Up, 1, 1);
+        builder.addLabel(CircuitBuilder::Up, 1, 0.1, "1");
+        carryIn = builder.addPin(CircuitBuilder::Up, 1, 0);
+        builder.build("carry_in");
     }
 
+    // Is there any LUT whose output is loaded?
     bool isActive = false;
 
+    // Draw all logic cells and collect coordinates of their inputs and outputs
+    // so that tile-wide connections can be drawn.
     QVector<QPointF> ffENs, ffCLKs, ffSRs;
     for(int lc = 0; lc < 8; lc++) {
+        // Y offset of the logic cell
         qreal lcOff = (7 - lc) * 6;
 
-        uint lutConfig = tile.extract(tileBits.functions[QString("LC_%1").arg(lc)]);
+        // Each logic cell has a set of tile bits configuring it. These bits
+        // include the LUT truth table, the FF and carry configuration in what
+        // appears to be a modified Hilbert curve, so there's no straightforward
+        // mapping to anything useful; it's also not documented anywhere.
+        uint lutffConfig = tile.extract(tileBits.functions[QString("LC_%1").arg(lc)]);
 
+        // Extract LUT truth table.
+        // For any binary digits ABCD, LUT[ABCD]=(lutData>>0bABCD)&1.
         uint lutData = 0;
         for(nbit_t nbit : {4, 14, 15, 5, 6, 16, 17, 7, 3, 13, 12, 2, 1, 11, 10, 0}) {
             lutData >>= 1;
-            if(lutConfig & (1 << nbit)) lutData |= 1 << 15;
+            if(lutffConfig & (1 << nbit)) lutData |= 1 << 15;
         }
 
-        bool cfgCarry = lutConfig & (1 << 8);
-        bool hasDFF   = lutConfig & (1 << 9);
-        bool srSet    = lutConfig & (1 << 18);
-        bool asyncSR  = lutConfig & (1 << 19);
+        // Whether this logic cell's carry unit is enabled. If disabled, the carry
+        // unit always outputs 0.
+        bool hasCarryOut = lutffConfig & (1 << 8);
+        // Whether this logic cell's DFF is enabled. If disabled, the logic cell
+        // output is connected to LUT output.
+        bool hasDFF = lutffConfig & (1 << 9);
 
+        // If true, this logic cell's DFF has a set input. If false, reset input.
+        bool srSet = lutffConfig & (1 << 18);
+        // If true, this logic cell's DFF uses an asynchronous set/reset input. If false,
+        // synchronous.
+        bool asyncSR = lutffConfig & (1 << 19);
+
+        // Nets internal to this logic cell.
         QString lutff      = QString("lutff_%1").arg(lc);
         QString lutff_in0  = lutff + "/in_0";
         net_t n_lutff_in0  = tileNets[lutff_in0];
@@ -237,38 +289,46 @@ void FloorplanBuilder::buildLogicTile(const Bitstream::Tile &tile, QGraphicsRect
         net_t n_lutff_out  = tileNets[lutff_out];
         bool l_lutff_out   = netLoaded[n_lutff_out];
 
-        bool hasLUT   = _showUnusedLogic || hasDFF || l_lutff_lout || l_lutff_out;
-        bool hasCarry = _showUnusedLogic || cfgCarry;
-        bool hasOut   = _showUnusedLogic || l_lutff_out;
         isActive |= hasDFF || l_lutff_lout || l_lutff_out;
 
+        // Whether we should draw the LUT.
+        bool drawLUT = _showUnusedLogic || hasDFF || l_lutff_lout || l_lutff_out;
+        // Whether we should draw the carry unit.
+        bool drawCarry = _showUnusedLogic || hasCarryOut;
+        // Whether we should draw logic cell output.
+        bool hasOut = _showUnusedLogic || l_lutff_out;
+
+        // Whether anything is connected to the LUT inputs, and carry unit inputs
+        // that are connected to the LUT inputs.
         bool hasA   = d_lutff_in0 != -1;
         bool hasB   = d_lutff_in1 != -1;
         bool hasC   = d_lutff_in2 != -1;
         bool hasD   = d_lutff_in3 != -1;
         uint inputs = hasA + hasB + hasC + hasD;
 
+        // Draw this logic cell's carry unit.
+        QPointF carryI0, carryCI, carryI1, carryO;
         builder.setColor(BLOCK_COLOR);
-        // lutff_N (carry adder)
-        QPointF carryI0, carryI1, carryI2, carryO;
         builder.setOrigin(1, lcOff - 1.5);
-        if(hasCarry) {
+        if(drawCarry) {
             builder.addMux(CircuitBuilder::Up, 1.5, 0, 3);
             builder.addLabel(CircuitBuilder::Up, 1, 0, "∑₁");
             if(d_lutff_in2 != -1) carryI0 = builder.addPin(CircuitBuilder::Down, 0, 0);
-            if(hasCarryIn) carryI1 = builder.addPin(CircuitBuilder::Down, 1, 0);
-            if(d_lutff_in1 != -1) carryI2 = builder.addPin(CircuitBuilder::Down, 2, 0);
-            if(cfgCarry) carryO = builder.addPin(CircuitBuilder::Up, 1, 0);
+            if(hasCarryIn) carryCI = builder.addPin(CircuitBuilder::Down, 1, 0);
+            if(d_lutff_in1 != -1) carryI1 = builder.addPin(CircuitBuilder::Down, 2, 0);
+            if(hasCarryOut) carryO = builder.addPin(CircuitBuilder::Up, 1, 0);
         }
         builder.build(lutff + "/carry");
-        // lutff_N (look-up table)
+
+        // Draw this logic cell's LUT.
         QPointF lutI0, lutI1, lutI2, lutI3, lutO;
+        builder.setColor(BLOCK_COLOR);
         builder.setOrigin(5, lcOff);
-        if(hasLUT && inputs == 0 && !_showUnusedLogic && _lutNotation != RawLUTs) {
+        if(drawLUT && inputs == 0 && !_showUnusedLogic && _lutNotation != RawLUTs) {
             builder.addBuffer(CircuitBuilder::Right, 3, 0);
             builder.addLabel(CircuitBuilder::Left, 3, 0, (lutData & 1) ? "1" : "0");
             lutO = builder.addPin(CircuitBuilder::Right, 3, 0);
-        } else if(hasLUT) {
+        } else if(drawLUT) {
             builder.addBlock(0, 0, 8, 4);
             QString functionDescr = recognizeFunction(lutData, hasA, hasB, hasC, hasD);
             builder.addText(4, 2, functionDescr, functionDescr.contains('\n') ? 1.2 : 1.5);
@@ -279,18 +339,25 @@ void FloorplanBuilder::buildLogicTile(const Bitstream::Tile &tile, QGraphicsRect
             lutO = builder.addPin(CircuitBuilder::Right, 7, 0, "O");
         }
         builder.build(lutff + "/lut");
-        // lutff_N (flip-flop)
+
+        // Draw this logic cell's FF, or buffer if FF is bypassed.
         QPointF ffD, ffEN, ffCLK, ffQ, ffSR;
+        builder.setColor(BLOCK_COLOR);
         builder.setOrigin(18, lcOff);
         if(hasDFF) {
+            // Draw an FF.
             if(!asyncSR && (d_lutff_global_s_r != -1 || _showUnusedLogic)) {
+                // FF with synchronous set/reset, 4 left-side inputs.
                 builder.addBlock(0, 0, 3, 4);
             } else {
+                // FF with asynchronous set/reset, 3 left-side inputs and 1 bottom input.
                 builder.addBlock(0, 0, 3, 3);
             }
             ffD = builder.addPin(CircuitBuilder::Left, 0, 0, "D");
             ffQ = builder.addPin(CircuitBuilder::Right, 2, 0, "Q");
             if(d_lutff_global_clk != -1 || _showUnusedLogic) {
+                // Although degenerate, an FF without a clock could do
+                // something useful if it has an asynchronous set input.
                 ffCLK = builder.addPin(CircuitBuilder::Left, 0, 1, ">", negClk);
                 ffCLKs.append(ffCLK);
             }
@@ -308,49 +375,60 @@ void FloorplanBuilder::buildLogicTile(const Bitstream::Tile &tile, QGraphicsRect
                 ffSRs.append(ffSR);
             }
         } else if(hasOut) {
+            // Draw a buffer.
             builder.addBuffer(CircuitBuilder::Right, 0, 0);
             ffD = builder.addPin(CircuitBuilder::Left, 0, 0);
             ffQ = builder.addPin(CircuitBuilder::Right, 0, 0);
         }
         builder.build(lutff + "/ff");
 
+        // Draw nets connecting the LUT inputs and carry adder inputs.
         builder.setColor(NET_COLOR);
         builder.setOrigin(0, lcOff);
-        // lutff_N/in_0
+
+        // Draw input A net. This is connected only to LUT I0, and is driven by
+        // a local track.
         if(hasA) {
             QPointF lutffI0 = builder.moveTo(0, 0);
-            if(hasLUT) {
+            if(drawLUT) {
                 builder.wireTo(lutI0);
             }
             builder.build(lutff_in0, n_lutff_in0);
         }
-        // lutff_N/in_1
+
+        // Draw input B net. This is connected to LUT I1 and carry unit I1,
+        // and is driven by a local track.
         if(hasB) {
             QPointF lutffI1 = builder.moveTo(0, 1);
-            if(hasLUT) {
+            if(drawLUT) {
                 builder.wireTo(lutI1);
             }
-            if(hasCarry) {
-                builder.joinTo(QPointF(carryI2.x(), lutffI1.y()), hasLUT);
-                builder.wireTo(carryI2);
+            if(drawCarry) {
+                builder.joinTo(QPointF(carryI1.x(), lutffI1.y()), drawLUT);
+                builder.wireTo(carryI1);
             }
             builder.build(lutff_in1, n_lutff_in1);
         }
-        // lutff_N/in_2
+
+        // Draw input C net. This is connected to LUT I2, carry unit I0,
+        // and is driven by either LUT output of the previous logic cell
+        // (if this isn't the first cell in the tile), or a local track.
         if(hasC) {
             builder.moveTo(lutI2);
             if(n_lutff_in2 == n_lutff_lin) {
+                // lutff_(N-1)/lout case
                 builder.wireTo(3, 2);
-            } else if(hasLUT) {
+            } else if(drawLUT) {
                 QPointF lutffI2 = builder.wireTo(0, 2);
             }
-            if(hasCarry) {
+            if(drawCarry) {
                 builder.moveTo(carryI0);
                 builder.wireTo(1, 2);
                 if(n_lutff_in2 == n_lutff_lin) {
+                    // lutff_(N-1)/lout case
                     builder.wireTo(3, 2);
-                    builder.junction(hasLUT);
-                } else if(hasLUT) {
+                    builder.junction(drawLUT);
+                } else if(drawLUT) {
                     builder.junction();
                 } else {
                     QPointF lutffI2 = builder.wireTo(0, 2);
@@ -358,10 +436,12 @@ void FloorplanBuilder::buildLogicTile(const Bitstream::Tile &tile, QGraphicsRect
             }
             builder.build(lutff_in2, n_lutff_in2);
         }
-        // lutff_N/in_3
+
+        // Draw input D net. This is connected to LUT I3 and may be driven by
+        // the same net that drives carry unit CI, or a local track.
         if(hasD) {
             if(d_lutff_in3 == n_lutff_cin) {
-                if(hasLUT && hasCarry) {
+                if(drawLUT && drawCarry) {
                     builder.junctionTo(QPointF(carryIn.x(), lutI3.y()));
                 } else {
                     builder.moveTo(QPointF(carryIn.x(), lutI3.y()));
@@ -369,13 +449,26 @@ void FloorplanBuilder::buildLogicTile(const Bitstream::Tile &tile, QGraphicsRect
             } else {
                 QPointF lutffI3 = builder.moveTo(0, 3);
             }
-            if(hasLUT) {
+            if(drawLUT) {
                 builder.wireTo(lutI3);
             }
             builder.build(lutff_in3, n_lutff_in3);
         }
-        // lutff_N/lout
-        if(hasLUT) {
+
+        // Draw carry unit input net.
+        if(hasCarryIn) {
+            builder.moveTo(carryIn);
+            if(drawCarry) {
+                builder.wireTo(carryCI);
+            } else if(drawLUT) {
+                builder.wireTo(QPointF(carryIn.x(), lutI3.y()));
+            }
+            builder.build(lutff_cin, n_lutff_cin);
+        }
+
+        // Draw LUT output net. This is connected to DFF or output buffer,
+        // and may drive LUT I2 input of the next logic cell.
+        if(drawLUT) {
             builder.moveTo(lutO);
             builder.wireTo(ffD);
             if(l_lutff_lout) {
@@ -386,79 +479,59 @@ void FloorplanBuilder::buildLogicTile(const Bitstream::Tile &tile, QGraphicsRect
             }
             builder.build(lutff_lout, n_lutff_lout);
         }
-        // lutff_N/out
+
+        // Draw logic cell output net. This is driven by DFF or output buffer.
         if(l_lutff_out) {
             builder.moveTo(ffQ);
             builder.wireTo(22, 0);
             builder.build(lutff_out, n_lutff_out);
         }
-        // carry_mux_in or lutff_N-1/cout
-        if(hasCarryIn) {
-            builder.moveTo(carryIn);
-            if(hasCarry) {
-                builder.wireTo(carryI1);
-            } else if(hasLUT) {
-                builder.wireTo(QPointF(carryIn.x(), lutI3.y()));
-            }
-            builder.build(lutff_cin, n_lutff_cin);
-        }
-        hasCarryIn = cfgCarry;
+
+        // Remember the carry unit configuration to draw the next logic cell.
+        hasCarryIn = hasCarryOut;
         carryIn    = carryO;
     }
 
-    if(!ffCLKs.isEmpty()) {
-        builder.setOrigin(15, -5);
+    // If the per-tile FF input nets have a non-constant driver and
+    // any FFs are enabled, or unused logic is shown, draw the per-tile nets.
+    auto drawTileFFNet = [&](qreal originX, qreal originY, const QVector<QPointF> &ffNets,
+                             const QString &netName, net_t net) {
+        if(ffNets.isEmpty()) return QPointF();
 
-        QPointF tileCLK = builder.moveTo(1, 0);
-        builder.wireTo(1, 8 * 6 + 3);
-        for(QPointF lcCLK : ffCLKs) {
-            builder.junctionTo(QPointF(tileCLK.x(), lcCLK.y()));
-            builder.wireTo(lcCLK);
-        }
-        builder.build(lutff_global_clk, n_lutff_global_clk);
-    }
+        builder.setOrigin(originX, originY);
 
-    if(!ffENs.isEmpty()) {
-        builder.setOrigin(14, -4);
-
-        if(d_lutff_global_cen == -1) {
+        if(d_lutff_global_clk == -1) {
+            // Draw a constant driver.
             builder.setColor(BLOCK_COLOR);
-            builder.addBuffer(CircuitBuilder::Right, 0, 0);
-            builder.addLabel(CircuitBuilder::Left, 0, 0, "1");
-            builder.addPin(CircuitBuilder::Right, 0, 0);
+            builder.addBuffer(CircuitBuilder::Right, -1, 0);
+            builder.addLabel(CircuitBuilder::Left, -1, 0, "0");
+            builder.addPin(CircuitBuilder::Right, -1, 0);
             builder.build();
         }
 
+        // Start drawing vertical segment.
         builder.setColor(NET_COLOR);
-        QPointF tileEN = builder.moveTo(1, 0);
-        builder.wireTo(1, 8 * 6 + 2);
-        for(QPointF lcEN : ffENs) {
-            builder.junctionTo(QPointF(tileEN.x(), lcEN.y()));
-            builder.wireTo(lcEN);
-        }
-        builder.build(lutff_global_cen, n_lutff_global_cen);
-    }
+        QPointF tileNet = builder.moveTo(0, 0);
 
-    if(!ffSRs.isEmpty()) {
-        builder.setOrigin(13, -3);
-
-        if(d_lutff_global_s_r == -1) {
-            builder.setColor(BLOCK_COLOR);
-            builder.addBuffer(CircuitBuilder::Right, 0, 0);
-            builder.addLabel(CircuitBuilder::Left, 0, 0, "0");
-            builder.addPin(CircuitBuilder::Right, 0, 0);
-            builder.build();
+        // Draw horizontal segments to FFs.
+        qreal maxY = 0;
+        for(QPointF ffNet : ffNets) {
+            builder.junctionTo(QPointF(tileNet.x(), ffNet.y()));
+            builder.wireTo(ffNet);
+            maxY = qMax(maxY, ffNet.y());
         }
 
-        builder.setColor(NET_COLOR);
-        QPointF tileRS = builder.moveTo(1, 0);
-        builder.wireTo(1, 8 * 6 + 1);
-        for(QPointF lcSR : ffSRs) {
-            builder.junctionTo(QPointF(tileRS.x(), lcSR.y()));
-            builder.wireTo(lcSR);
-        }
-        builder.build(lutff_global_s_r, n_lutff_global_s_r);
-    }
+        // Finish drawing vertical segment.
+        builder.moveTo(tileNet);
+        builder.wireTo(QPointF(tileNet.x(), maxY));
+        builder.build(netName, net);
+
+        return tileNet;
+    };
+
+    drawTileFFNet(16, -5, ffCLKs, lutff_global_clk, n_lutff_global_clk);
+    drawTileFFNet(15, -4, ffENs, lutff_global_cen, n_lutff_global_cen);
+    drawTileFFNet(14, -3, ffSRs, lutff_global_s_r, n_lutff_global_s_r);
 
     tileItem->setBrush(QBrush(isActive ? TILE_LOGIC_COLOR : TILE_INACTIVE_COLOR));
 }
