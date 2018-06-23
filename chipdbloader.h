@@ -1,6 +1,8 @@
 #ifndef CHIPDBLOADER_H
 #define CHIPDBLOADER_H
 
+#include <functional>
+
 #include <QThread>
 #include <QString>
 #include "chipdb.h"

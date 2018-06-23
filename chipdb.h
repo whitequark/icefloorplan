@@ -1,6 +1,8 @@
 #ifndef CHIPDB_H
 #define CHIPDB_H
 
+#include <functional>
+
 #include <QIODevice>
 #include <QMap>
 #include <QVector>
