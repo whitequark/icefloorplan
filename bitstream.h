@@ -1,6 +1,8 @@
 #ifndef BITSTREAM_H
 #define BITSTREAM_H
 
+#include <functional>
+
 #include <QBitArray>
 #include <QIODevice>
 #include <QMap>
