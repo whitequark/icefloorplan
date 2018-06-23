@@ -84,6 +84,19 @@ void FloorplanWidget::wheelEvent(QWheelEvent *event)
     }
 }
 
+void FloorplanWidget::keyPressEvent(QKeyEvent *event)
+{
+    const qreal ZOOM_FACTOR = 1.2;
+
+    if(event->key() == Qt::Key_Plus) {
+        scale(ZOOM_FACTOR, ZOOM_FACTOR);
+    } else if(event->key() == Qt::Key_Minus) {
+        scale(1/ZOOM_FACTOR, 1/ZOOM_FACTOR);
+    } else {
+        QGraphicsView::keyPressEvent(event);
+    }
+}
+
 void FloorplanWidget::mouseMoveEvent(QMouseEvent *event)
 {
     QGraphicsPathItem *netItem = nullptr;

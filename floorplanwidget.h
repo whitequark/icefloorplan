@@ -32,6 +32,7 @@ signals:
     void netHovered(net_t net, QString name, QString symbol);
 
 protected:
+    void keyPressEvent(QKeyEvent *event) override;
     bool viewportEvent(QEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
