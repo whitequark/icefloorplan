@@ -1,7 +1,9 @@
-CONFIG   += c++11
+lessThan(QT_MAJOR_VERSION, 5) {
+    error("Qt $${QT_MAJOR_VERSION} is not supported.")
+}
 
-QT       += core gui
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+CONFIG  += c++11
+QT      += core gui widgets
 
 TARGET = icefloorplan
 TEMPLATE = app
