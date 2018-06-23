@@ -6,7 +6,7 @@ iCE Floorplan is a floorplan viewer tool written for [Project IceStorm][icestorm
 Building
 --------
 
-This tool should work on any OS that has [Qt 5][qt], although the author only uses it on Linux. It needs the core, gui and widgets Qt libraries; on Debian-based systems, these can be installed with:
+This tool should work on any OS that has [Qt 5][qt5], although the author only uses it on Linux. It needs the core, gui and widgets Qt libraries; on Debian-based systems, these can be installed with:
 
 ```sh
 sudo apt-get install qtbase5-dev qtbase5-dev-tools
@@ -35,5 +35,5 @@ License
 
 [0-clause BSD](LICNSE-0BSD.txt)
 
-[icestorm]:
-[qt]:
+[icestorm]: http://clifford.at/icestorm/
+[qt5]: https://qt.io
