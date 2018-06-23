@@ -91,10 +91,31 @@ void FloorplanWidget::keyPressEvent(QKeyEvent *event)
     if(event->key() == Qt::Key_Plus) {
         scale(ZOOM_FACTOR, ZOOM_FACTOR);
     } else if(event->key() == Qt::Key_Minus) {
-        scale(1/ZOOM_FACTOR, 1/ZOOM_FACTOR);
+        scale(1 / ZOOM_FACTOR, 1 / ZOOM_FACTOR);
     } else {
         QGraphicsView::keyPressEvent(event);
     }
+}
+
+void FloorplanWidget::mousePressEvent(QMouseEvent *event)
+{
+    if(event->button() == Qt::MiddleButton) {
+        QMouseEvent newEvent(event->type(), event->pos(),
+                             Qt::LeftButton, Qt::LeftButton, event->modifiers());
+        QGraphicsView::mousePressEvent(&newEvent);
+    } else {
+        QGraphicsView::mousePressEvent(event);
+    }
+}
+
+void FloorplanWidget::mouseReleaseEvent(QMouseEvent *event)
+{
+    if(event->button() == Qt::MiddleButton) {
+        QMouseEvent newEvent(event->type(), event->pos(),
+                         Qt::LeftButton, Qt::LeftButton, event->modifiers());
+        QGraphicsView::mouseReleaseEvent(&newEvent);
+    } else
+        QGraphicsView::mouseReleaseEvent(event);
 }
 
 void FloorplanWidget::mouseMoveEvent(QMouseEvent *event)

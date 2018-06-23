@@ -35,6 +35,8 @@ protected:
     void keyPressEvent(QKeyEvent *event) override;
     bool viewportEvent(QEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     virtual bool gestureEvent(QGestureEvent *event);
 
